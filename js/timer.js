@@ -13,6 +13,35 @@ const Timer = (function() {
   // Audio context for notification
   let audioContext = null;
 
+  // Read user preference from Settings (defaults to true if Settings isn't
+  // available yet or the key was never set, matching Settings' own defaults).
+  const soundEnabled = function() {
+    try {
+      if (typeof Settings === 'undefined') return true;
+      const val = Settings.getSetting('timerSound');
+      return val !== false;
+    } catch (e) {
+      return true;
+    }
+  };
+
+  const vibrationEnabled = function() {
+    try {
+      if (typeof Settings === 'undefined') return true;
+      const val = Settings.getSetting('vibration');
+      return val !== false;
+    } catch (e) {
+      return true;
+    }
+  };
+
+  const doVibrate = function(pattern) {
+    if (!vibrationEnabled()) return;
+    if ('vibrate' in navigator) {
+      navigator.vibrate(pattern);
+    }
+  };
+
   const initAudio = function() {
     if (!audioContext) {
       try {
@@ -49,6 +78,7 @@ const Timer = (function() {
   // Soft "blip" heard every second while the timer is counting down,
   // so it's always obvious the timer is actually running.
   const playBlip = function() {
+    if (!soundEnabled()) return;
     if (!audioContext) initAudio();
     if (!audioContext) return;
     tone(1000, 0.06, 0.12, 'sine');
@@ -56,6 +86,7 @@ const Timer = (function() {
 
   // More urgent double-blip for the final countdown (<=3s)
   const playUrgentBlip = function() {
+    if (!soundEnabled()) return;
     if (!audioContext) initAudio();
     if (!audioContext) return;
     tone(1200, 0.09, 0.22, 'square');
@@ -63,22 +94,46 @@ const Timer = (function() {
 
   // Final completion sound
   const playNotification = function() {
-    if (!audioContext) initAudio();
-    if (!audioContext) return;
-
-    tone(800, 0.5, 0.3, 'sine');
-    setTimeout(() => tone(1000, 0.4, 0.25, 'sine'), 150);
-
-    if ('vibrate' in navigator) {
-      navigator.vibrate([200, 100, 200, 100, 200]);
+    if (soundEnabled()) {
+      if (!audioContext) initAudio();
+      if (audioContext) {
+        tone(800, 0.5, 0.3, 'sine');
+        setTimeout(() => tone(1000, 0.4, 0.25, 'sine'), 150);
+      }
     }
+
+    doVibrate([200, 100, 200, 100, 200]);
   };
 
   // Voice encouragement at the 10-second mark ("10 detik lagi, ayo semangat!")
   const playEncouragement = function() {
+    speak('10 detik lagi, ayo semangat!');
+    doVibrate([120, 80, 120]);
+  };
+
+  // Random hype phrases spoken when a rest timer finishes, so it's not the
+  // same line every single time.
+  const FINISH_PHRASES = [
+    'Waktu habis, ayo lanjut, semangat!',
+    'Istirahat selesai, kamu pasti bisa!',
+    'Oke, gaskeun set berikutnya!',
+    'Mantap, lanjut lagi, jangan menyerah!',
+    'Waktunya balik gerak, semangat terus!',
+    'Selesai istirahat, ayo kita lanjutkan!'
+  ];
+
+  const playFinishEncouragement = function() {
+    const phrase = FINISH_PHRASES[Math.floor(Math.random() * FINISH_PHRASES.length)];
+    speak(phrase);
+  };
+
+  // Shared helper for speaking a phrase via Web Speech API, with a beep
+  // fallback when speech synthesis isn't available.
+  const speak = function(text) {
+    if (!soundEnabled()) return;
     try {
-      if ('speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance('10 detik lagi, ayo semangat!');
+      if ('speechSynthesis' in window && typeof SpeechSynthesisUtterance !== 'undefined') {
+        const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'id-ID';
         utterance.rate = 1.05;
         utterance.pitch = 1.1;
@@ -86,15 +141,11 @@ const Timer = (function() {
         window.speechSynthesis.cancel(); // avoid overlapping utterances
         window.speechSynthesis.speak(utterance);
       } else {
-        // fallback if speech synthesis isn't available: two quick beeps
         playUrgentBlip();
         setTimeout(playUrgentBlip, 180);
       }
     } catch (e) {
       console.warn('Speech synthesis failed', e);
-    }
-    if ('vibrate' in navigator) {
-      navigator.vibrate([120, 80, 120]);
     }
   };
 
@@ -108,6 +159,7 @@ const Timer = (function() {
     if (remainingSeconds <= 0) {
       stop();
       playNotification();
+      setTimeout(playFinishEncouragement, 300); // let the beep finish first
       if (onCompleteCallback) {
         onCompleteCallback();
       }

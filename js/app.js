@@ -180,25 +180,25 @@ const App = (function() {
     const repCurrent = document.querySelector('.rep-current');
     const repTotal = document.querySelector('.rep-total');
     if (repCurrent) repCurrent.textContent = exercise.reps;
-    if (repTotal) repTotal.textContent = 'target reps';
-
-    resetTimerDisplay(exercise.rest);
+    if (repTotal) repTotal.textContent = 'Target Reps';
 
     const pauseBtn = document.getElementById('pause-timer-btn');
     if (pauseBtn) pauseBtn.textContent = 'Pause';
-  };
 
-  // Ring circumference from the SVG (r=100 -> 2*PI*100 ≈ 628)
-  const RING_CIRCUMFERENCE = 628;
-
-  const resetTimerDisplay = function(restSeconds) {
-    restSeconds = parseInt(restSeconds) || 0;
-    const timerDisplay = document.querySelector('.timer-display');
-    const timerLabel = document.querySelector('.timer-label');
-    const ring = document.querySelector('.timer-progress');
-    if (timerDisplay) timerDisplay.textContent = formatTime(restSeconds);
-    if (timerLabel) timerLabel.textContent = 'Sisa waktu istirahat';
-    if (ring) ring.style.strokeDashoffset = 0;
+    // Timer starts running immediately as soon as this exercise/set is shown —
+    // no need to tap "Selesai Set" first.
+    const restSeconds = parseInt(exercise.rest) || 0;
+    if (restSeconds > 0) {
+      startRestTimer(restSeconds);
+    } else {
+      Timer.stop();
+      const timerDisplay = document.querySelector('.timer-display');
+      const timerLabel = document.querySelector('.timer-label');
+      const ring = document.querySelector('.timer-progress');
+      if (timerDisplay) timerDisplay.textContent = '0:00';
+      if (timerLabel) timerLabel.textContent = 'Tanpa istirahat';
+      if (ring) ring.style.strokeDashoffset = 0;
+    }
   };
 
   const formatTime = function(seconds) {
@@ -209,13 +209,12 @@ const App = (function() {
 
   const handleCompleteSet = function() {
     // Static/one-tap: no more manual rep-by-rep counting. Tapping "Selesai Set"
-    // immediately commits the set at its target reps and kicks off the rest timer.
+    // immediately commits the set at its target reps. renderSession() (called
+    // below) auto-starts the next timer, so nothing else to do here.
     const exercise = Session.getCurrentExercise();
     if (!exercise) return;
-    const reps = exercise.reps;
-    const restSeconds = parseInt(exercise.rest) || 0;
 
-    Session.completeSet(reps);
+    Session.completeSet(exercise.reps);
 
     const session = Session.getCurrent();
     if (!session) {
@@ -226,10 +225,10 @@ const App = (function() {
     }
 
     renderSession();
-    if (restSeconds > 0) {
-      startRestTimer(restSeconds);
-    }
   };
+
+  // Ring circumference from the SVG (r=100 -> 2*PI*100 ≈ 628)
+  const RING_CIRCUMFERENCE = 628;
 
   const startRestTimer = function(seconds) {
     const timerDisplay = document.querySelector('.timer-display');
