@@ -787,21 +787,3 @@ header .subtitle {
   padding: 20px;
   padding-bottom: 100px;
 }
-
-/* ========================================
-   SCREEN NAVIGATION (CRITICAL - MISSING!)
-   ======================================== */
-
-.screen {
-  display: none;
-}
-
-.screen.active {
-  display: block;
-  animation: fadeUp 0.3s ease-out;
-}
-
-/* Hide all screens except active one */
-#main > .screen:not(.active) {
-  display: none;
-}

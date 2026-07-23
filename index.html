@@ -798,23 +798,6 @@ header .subtitle {
   padding-bottom: 100px;
 }
 
-/* ========================================
-   SCREEN NAVIGATION (CRITICAL - MISSING!)
-   ======================================== */
-
-.screen {
-  display: none;
-}
-
-.screen.active {
-  display: block;
-  animation: fadeUp 0.3s ease-out;
-}
-
-/* Hide all screens except active one */
-#main > .screen:not(.active) {
-  display: none;
-}
   </style>
 </head>
 <body>
@@ -829,7 +812,7 @@ header .subtitle {
       <div id="home-screen" class="screen active">
         <div class="streak-card fade-in">
           <div class="streak-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
             </svg>
           </div>
@@ -847,7 +830,7 @@ header .subtitle {
 
           <div class="card workout-card" data-workout="1">
             <div class="workout-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path d="M6.5 6.5L17.5 17.5M6.5 17.5L17.5 6.5M12 2V22"/>
               </svg>
             </div>
@@ -858,14 +841,14 @@ header .subtitle {
             </div>
             <div class="meta">
               <span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="13" height="13">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <circle cx="12" cy="12" r="10"/>
                   <polyline points="12 6 12 12 16 14"/>
                 </svg>
                 30 min
               </span>
               <span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="13" height="13">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
                 </svg>
                 220 cal
@@ -875,7 +858,7 @@ header .subtitle {
 
           <div class="card workout-card" data-workout="2">
             <div class="workout-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
                 <line x1="6" y1="1" x2="6" y2="4"/>
                 <line x1="10" y1="1" x2="10" y2="4"/>
@@ -889,14 +872,14 @@ header .subtitle {
             </div>
             <div class="meta">
               <span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="13" height="13">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <circle cx="12" cy="12" r="10"/>
                   <polyline points="12 6 12 12 16 14"/>
                 </svg>
                 25 min
               </span>
               <span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="13" height="13">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
                 </svg>
                 150 cal
@@ -906,7 +889,7 @@ header .subtitle {
 
           <div class="card workout-card" data-workout="3">
             <div class="workout-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <circle cx="12" cy="12" r="10"/>
                 <circle cx="12" cy="12" r="6"/>
                 <circle cx="12" cy="12" r="2"/>
@@ -919,14 +902,14 @@ header .subtitle {
             </div>
             <div class="meta">
               <span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="13" height="13">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <circle cx="12" cy="12" r="10"/>
                   <polyline points="12 6 12 12 16 14"/>
                 </svg>
                 35 min
               </span>
               <span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="13" height="13">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
                 </svg>
                 280 cal
@@ -936,7 +919,7 @@ header .subtitle {
         </div>
 
         <button class="btn-primary fade-in delay-2" id="start-workout-btn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <polygon points="5 3 19 12 5 21 5 3"/>
           </svg>
           Mulai Workout
@@ -947,7 +930,7 @@ header .subtitle {
       <div id="session-screen" class="screen session-screen">
         <div class="session-top">
           <button class="btn-secondary" id="exit-session-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 16px; height: 16px; stroke-width: 2;">
               <line x1="19" y1="12" x2="5" y2="12"/>
               <polyline points="12 19 5 12 12 5"/>
             </svg>
@@ -986,15 +969,15 @@ header .subtitle {
         </div>
 
         <button class="btn-primary" id="complete-set-btn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <polyline points="20 6 9 17 4 12"/>
           </svg>
           Selesai Set
         </button>
 
         <div class="session-actions">
-          <button class="btn-secondary">Pause</button>
-          <button class="btn-secondary">Skip</button>
+          <button class="btn-secondary" id="pause-timer-btn">Pause</button>
+          <button class="btn-secondary" id="skip-exercise-btn">Skip</button>
         </div>
       </div>
 
@@ -1029,7 +1012,7 @@ header .subtitle {
           <div class="stats-grid">
             <div class="stat-card">
               <div class="stat-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <path d="M2 12h20M12 2v20"/>
                 </svg>
               </div>
@@ -1038,7 +1021,7 @@ header .subtitle {
             </div>
             <div class="stat-card">
               <div class="stat-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <path d="M6.5 6.5L17.5 17.5M6.5 17.5L17.5 6.5"/>
                 </svg>
               </div>
@@ -1047,7 +1030,7 @@ header .subtitle {
             </div>
             <div class="stat-card">
               <div class="stat-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <path d="M12 2v20M2 12h20"/>
                 </svg>
               </div>
@@ -1056,7 +1039,7 @@ header .subtitle {
             </div>
             <div class="stat-card">
               <div class="stat-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                 </svg>
               </div>
@@ -1072,7 +1055,7 @@ header .subtitle {
         <div class="stats-grid fade-in">
           <div class="stat-card">
             <div class="stat-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path d="M6.5 6.5L17.5 17.5M6.5 17.5L17.5 6.5M12 2V22"/>
               </svg>
             </div>
@@ -1081,7 +1064,7 @@ header .subtitle {
           </div>
           <div class="stat-card">
             <div class="stat-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
               </svg>
             </div>
@@ -1090,7 +1073,7 @@ header .subtitle {
           </div>
           <div class="stat-card">
             <div class="stat-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <circle cx="12" cy="12" r="10"/>
                 <polyline points="12 6 12 12 16 14"/>
               </svg>
@@ -1100,7 +1083,7 @@ header .subtitle {
           </div>
           <div class="stat-card">
             <div class="stat-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
               </svg>
             </div>
@@ -1117,7 +1100,7 @@ header .subtitle {
                 <div class="label" style="margin-bottom: 4px;">Push-up (1 set)</div>
                 <div class="mono" style="font-size: 20px; font-weight: 600;">25 reps</div>
               </div>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="32" height="32">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 32px; height: 32px; stroke-width: 2;">
                 <path d="M6.5 6.5L17.5 17.5M6.5 17.5L17.5 6.5"/>
               </svg>
             </div>
@@ -1128,7 +1111,7 @@ header .subtitle {
                 <div class="label" style="margin-bottom: 4px;">Plank Hold</div>
                 <div class="mono" style="font-size: 20px; font-weight: 600;">1:45 min</div>
               </div>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="32" height="32">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 32px; height: 32px; stroke-width: 2;">
                 <circle cx="12" cy="12" r="10"/>
                 <circle cx="12" cy="12" r="6"/>
                 <circle cx="12" cy="12" r="2"/>
@@ -1141,7 +1124,7 @@ header .subtitle {
                 <div class="label" style="margin-bottom: 4px;">Longest Streak</div>
                 <div class="mono" style="font-size: 20px; font-weight: 600;">14 hari</div>
               </div>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="32" height="32">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 32px; height: 32px; stroke-width: 2;">
                 <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
               </svg>
             </div>
@@ -1160,7 +1143,7 @@ header .subtitle {
         <div class="timeline-label fade-in delay-1">Hari Ini</div>
         <div class="history-item fade-in delay-1">
           <div class="history-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path d="M6.5 6.5L17.5 17.5M6.5 17.5L17.5 6.5M12 2V22"/>
             </svg>
           </div>
@@ -1174,7 +1157,7 @@ header .subtitle {
         <div class="timeline-label fade-in delay-2">Kemarin</div>
         <div class="history-item fade-in delay-2">
           <div class="history-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
               <line x1="6" y1="1" x2="6" y2="4"/>
               <line x1="10" y1="1" x2="10" y2="4"/>
@@ -1190,7 +1173,7 @@ header .subtitle {
 
         <div class="history-item fade-in delay-3">
           <div class="history-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <circle cx="12" cy="12" r="10"/>
               <circle cx="12" cy="12" r="6"/>
               <circle cx="12" cy="12" r="2"/>
@@ -1206,7 +1189,7 @@ header .subtitle {
         <div class="timeline-label fade-in delay-4">21 Juli 2026</div>
         <div class="history-item fade-in delay-4">
           <div class="history-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path d="M6.5 6.5L17.5 17.5M6.5 17.5L17.5 6.5M12 2V22"/>
             </svg>
           </div>
@@ -1261,19 +1244,19 @@ header .subtitle {
           <div class="settings-group">
             <div class="settings-item" style="cursor: pointer;">
               <span class="settings-label">Export Data</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18" style="color: var(--muted);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 18px; height: 18px; stroke-width: 2; color: var(--muted);">
                 <polyline points="9 18 15 12 9 6"/>
               </svg>
             </div>
             <div class="settings-item" style="cursor: pointer;">
               <span class="settings-label">Import Data</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18" style="color: var(--muted);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 18px; height: 18px; stroke-width: 2; color: var(--muted);">
                 <polyline points="9 18 15 12 9 6"/>
               </svg>
             </div>
             <div class="settings-item" style="cursor: pointer;">
               <span class="settings-label" style="color: var(--blue);">Hapus Semua Data</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18" style="color: var(--muted);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 18px; height: 18px; stroke-width: 2; color: var(--muted);">
                 <polyline points="9 18 15 12 9 6"/>
               </svg>
             </div>
@@ -1289,20 +1272,20 @@ header .subtitle {
 
     <nav id="main-nav">
       <button class="nav-btn active" data-screen="home">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
           <polyline points="9 22 9 12 15 12 15 22"/>
         </svg>
         Home
       </button>
       <button class="nav-btn" data-screen="progress">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
         </svg>
         Progress
       </button>
       <button class="nav-btn" data-screen="statistics">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <line x1="18" y1="20" x2="18" y2="10"/>
           <line x1="12" y1="20" x2="12" y2="4"/>
           <line x1="6" y1="20" x2="6" y2="14"/>
@@ -1310,14 +1293,14 @@ header .subtitle {
         Stats
       </button>
       <button class="nav-btn" data-screen="history">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <circle cx="12" cy="12" r="10"/>
           <polyline points="12 6 12 12 16 14"/>
         </svg>
         History
       </button>
       <button class="nav-btn" data-screen="settings">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <circle cx="12" cy="12" r="3"/>
           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
         </svg>
@@ -1326,149 +1309,14 @@ header .subtitle {
     </nav>
   </div>
 
-  <script src="./js/app.js"></script>
-  <script>
-const App = (function() {
-  'use strict';
-
-  let currentScreen = 'home';
-
-  const init = function() {
-    setupEventListeners();
-    showScreen('home');
-    console.log('Workout Personal initialized');
-  };
-
-  const setupEventListeners = function() {
-    // Navigation buttons
-    const navButtons = document.querySelectorAll('.nav-btn');
-    navButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const screen = btn.dataset.screen;
-        showScreen(screen);
-      });
-    });
-
-    // Start workout button
-    const startBtn = document.getElementById('start-workout-btn');
-    if (startBtn) {
-      startBtn.addEventListener('click', () => {
-        showScreen('session');
-      });
-    }
-
-    // Exit session button
-    const exitBtn = document.getElementById('exit-session-btn');
-    if (exitBtn) {
-      exitBtn.addEventListener('click', () => {
-        showScreen('home');
-      });
-    }
-
-    // Complete set button
-    const completeBtn = document.getElementById('complete-set-btn');
-    if (completeBtn) {
-      completeBtn.addEventListener('click', () => {
-        handleCompleteSet();
-      });
-    }
-
-    // Workout cards
-    const workoutCards = document.querySelectorAll('.workout-card');
-    workoutCards.forEach(card => {
-      card.addEventListener('click', () => {
-        showScreen('session');
-      });
-    });
-
-    // Filter pills
-    const pills = document.querySelectorAll('.pill');
-    pills.forEach(pill => {
-      pill.addEventListener('click', () => {
-        pills.forEach(p => p.classList.remove('active'));
-        pill.classList.add('active');
-      });
-    });
-
-    // Toggle switches
-    const toggles = document.querySelectorAll('.toggle');
-    toggles.forEach(toggle => {
-      toggle.addEventListener('click', () => {
-        toggle.classList.toggle('on');
-      });
-    });
-  };
-
-  const showScreen = function(screenName) {
-    currentScreen = screenName;
-    
-    // Hide all screens
-    const screens = document.querySelectorAll('.screen');
-    screens.forEach(screen => {
-      screen.classList.remove('active');
-    });
-
-    // Show selected screen
-    const targetScreen = document.getElementById(screenName + '-screen');
-    if (targetScreen) {
-      targetScreen.classList.add('active');
-    }
-
-    // Update navigation
-    const navButtons = document.querySelectorAll('.nav-btn');
-    navButtons.forEach(btn => {
-      if (btn.dataset.screen === screenName) {
-        btn.classList.add('active');
-      } else {
-        btn.classList.remove('active');
-      }
-    });
-
-    // Scroll to top
-    window.scrollTo(0, 0);
-
-    // Trigger animations
-    const fadeElements = targetScreen.querySelectorAll('.fade-in');
-    fadeElements.forEach(el => {
-      el.style.animation = 'none';
-      setTimeout(() => {
-        el.style.animation = '';
-      }, 10);
-    });
-  };
-
-  const handleCompleteSet = function() {
-    const repCurrent = document.querySelector('.rep-current');
-    if (repCurrent) {
-      const current = parseInt(repCurrent.textContent);
-      const repTotal = document.querySelector('.rep-total');
-      const total = parseInt(repTotal.textContent.replace('/ ', ''));
-      
-      if (current < total) {
-        repCurrent.textContent = current + 1;
-        
-        // Add bounce animation
-        repCurrent.style.animation = 'none';
-        setTimeout(() => {
-          repCurrent.style.animation = 'fadeUp 0.3s ease-out';
-        }, 10);
-      } else {
-        // Set completed
-        alert('Set selesai! Istirahat 60 detik.');
-      }
-    }
-  };
-
-  return {
-    init: init,
-    showScreen: showScreen
-  };
-})();
-
-// Initialize app when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-  App.init();
-});
-  </script>
+  <script src="js/storage.js"></script>
+  <script src="js/workout.js"></script>
+  <script src="js/session.js"></script>
+  <script src="js/timer.js"></script>
+  <script src="js/progress.js"></script>
+  <script src="js/statistics.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/exportimport.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
