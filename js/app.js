@@ -96,10 +96,6 @@ const App = (function() {
       return;
     }
 
-    // reset rep counter for the new exercise
-    const repCurrent = document.querySelector('.rep-current');
-    if (repCurrent) repCurrent.textContent = 0;
-
     renderSession();
   };
 
@@ -179,19 +175,30 @@ const App = (function() {
       else if (i === session.currentExerciseIndex) dot.classList.add('current');
     });
 
+    // Static target display — no more tap-to-count. The number shown is just
+    // the exercise's target (reps or duration), nothing to increment.
     const repCurrent = document.querySelector('.rep-current');
     const repTotal = document.querySelector('.rep-total');
-    if (repCurrent) repCurrent.textContent = 0;
-    if (repTotal) repTotal.textContent = '/ ' + exercise.reps + ' reps';
+    if (repCurrent) repCurrent.textContent = exercise.reps;
+    if (repTotal) repTotal.textContent = 'target reps';
 
-    const timerDisplay = document.querySelector('.timer-display');
-    const timerLabel = document.querySelector('.timer-label');
-    const restSeconds = parseInt(exercise.rest) || 0;
-    if (timerDisplay) timerDisplay.textContent = formatTime(restSeconds);
-    if (timerLabel) timerLabel.textContent = 'Sisa waktu istirahat';
+    resetTimerDisplay(exercise.rest);
 
     const pauseBtn = document.getElementById('pause-timer-btn');
     if (pauseBtn) pauseBtn.textContent = 'Pause';
+  };
+
+  // Ring circumference from the SVG (r=100 -> 2*PI*100 ≈ 628)
+  const RING_CIRCUMFERENCE = 628;
+
+  const resetTimerDisplay = function(restSeconds) {
+    restSeconds = parseInt(restSeconds) || 0;
+    const timerDisplay = document.querySelector('.timer-display');
+    const timerLabel = document.querySelector('.timer-label');
+    const ring = document.querySelector('.timer-progress');
+    if (timerDisplay) timerDisplay.textContent = formatTime(restSeconds);
+    if (timerLabel) timerLabel.textContent = 'Sisa waktu istirahat';
+    if (ring) ring.style.strokeDashoffset = 0;
   };
 
   const formatTime = function(seconds) {
@@ -201,24 +208,12 @@ const App = (function() {
   };
 
   const handleCompleteSet = function() {
-    const repCurrent = document.querySelector('.rep-current');
-    let reps = repCurrent ? parseInt(repCurrent.textContent) || 0 : 0;
-    const repTotalEl = document.querySelector('.rep-total');
-    const target = repTotalEl ? parseInt(repTotalEl.textContent.replace('/ ', '')) || 0 : 0;
-
-    // bump reps toward target on tap (simple manual counter), commit set once at target
-    if (reps < target) {
-      reps += 1;
-      if (repCurrent) {
-        repCurrent.textContent = reps;
-        repCurrent.style.animation = 'none';
-        setTimeout(() => { repCurrent.style.animation = 'fadeUp 0.3s ease-out'; }, 10);
-      }
-      return;
-    }
-
+    // Static/one-tap: no more manual rep-by-rep counting. Tapping "Selesai Set"
+    // immediately commits the set at its target reps and kicks off the rest timer.
     const exercise = Session.getCurrentExercise();
-    const restSeconds = exercise ? (parseInt(exercise.rest) || 0) : 0;
+    if (!exercise) return;
+    const reps = exercise.reps;
+    const restSeconds = parseInt(exercise.rest) || 0;
 
     Session.completeSet(reps);
 
@@ -238,10 +233,23 @@ const App = (function() {
 
   const startRestTimer = function(seconds) {
     const timerDisplay = document.querySelector('.timer-display');
-    Timer.start(seconds, function(remaining) {
+    const timerLabel = document.querySelector('.timer-label');
+    const ring = document.querySelector('.timer-progress');
+    const pauseBtn = document.getElementById('pause-timer-btn');
+
+    if (pauseBtn) pauseBtn.textContent = 'Pause';
+    if (timerLabel) timerLabel.textContent = 'Sisa waktu istirahat';
+
+    Timer.start(seconds, function(remaining, total) {
       if (timerDisplay) timerDisplay.textContent = formatTime(remaining);
+      if (ring && total > 0) {
+        const progress = (total - remaining) / total; // 0 -> 1
+        ring.style.strokeDashoffset = RING_CIRCUMFERENCE * progress;
+      }
     }, function() {
       if (timerDisplay) timerDisplay.textContent = '0:00';
+      if (timerLabel) timerLabel.textContent = 'Istirahat selesai — lanjut!';
+      if (ring) ring.style.strokeDashoffset = RING_CIRCUMFERENCE;
     });
   };
 
