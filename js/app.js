@@ -344,12 +344,14 @@ const App = (function() {
     if (skipBtn) skipBtn.textContent = 'Skip';
 
     // "+15s" only ever applies to rest — hidden for the exercise itself.
+    // Uses inline style directly (not a CSS class) so this doesn't depend
+    // on css/style.css having loaded/refreshed correctly.
     const addTimeBtn = document.getElementById('add-time-btn');
-    if (addTimeBtn) addTimeBtn.classList.add('hidden');
+    if (addTimeBtn) addTimeBtn.style.display = 'none';
 
     const completeBtn = document.getElementById('complete-set-btn');
     const completeLabel = document.getElementById('complete-set-label');
-    if (completeBtn) completeBtn.classList.remove('hidden');
+    if (completeBtn) completeBtn.style.display = '';
 
     const timerDisplay = document.querySelector('.timer-display');
     const timerLabel = document.querySelector('.timer-label');
@@ -427,13 +429,13 @@ const App = (function() {
 
     if (pauseBtn) pauseBtn.textContent = 'Pause';
     if (skipBtn) skipBtn.textContent = 'Lewati Istirahat';
-    if (completeBtn) completeBtn.classList.add('hidden'); // nothing to complete during rest
+    if (completeBtn) completeBtn.style.display = 'none'; // nothing to complete during rest
     if (timerLabel) timerLabel.textContent = 'Sisa waktu istirahat';
 
     // Fresh rest period -> fresh allowance of "+15s" taps.
     addTimeTapsUsed = 0;
     if (addTimeBtn) {
-      addTimeBtn.classList.remove('hidden');
+      addTimeBtn.style.display = '';
       addTimeBtn.disabled = false;
     }
 
