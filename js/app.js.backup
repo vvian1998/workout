@@ -1,0 +1,1111 @@
+const App = (function() {
+  'use strict';
+
+  let currentPage = 'home';
+
+  const init = function() {
+    setupEventListeners();
+    renderPage();
+    console.log('Workout Personal initialized');
+  };
+
+  const setupEventListeners = function() {
+    const navButtons = document.querySelectorAll('.nav-btn');
+    navButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const page = btn.dataset.page;
+        navigateTo(page);
+      });
+    });
+  };
+
+  const navigateTo = function(page) {
+    currentPage = page;
+
+    const navButtons = document.querySelectorAll('.nav-btn');
+    navButtons.forEach(btn => {
+      if (btn.dataset.page === page) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+
+    renderPage();
+  };
+
+  const renderPage = function() {
+    const mainContent = document.getElementById('main-content');
+    
+    switch(currentPage) {
+      case 'home':
+        renderHomePage(mainContent);
+        break;
+      case 'workout':
+        renderWorkoutPage(mainContent);
+        break;
+      case 'exercises':
+        renderExercisesPage(mainContent);
+        break;
+      case 'history':
+        renderHistoryPage(mainContent);
+        break;
+      case 'progress':
+        renderProgressPage(mainContent);
+        break;
+      case 'statistics':
+        renderStatisticsPage();
+        break;
+      case 'settings':
+        renderSettingsPage(mainContent);
+        break;
+      default:
+        renderHomePage(mainContent);
+    }
+  };
+
+  const renderHomePage = function(container) {
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const todayWorkout = Workout.getByDay(dayOfWeek);
+    const weekSchedule = getWeekSchedule();
+
+    container.innerHTML = <div class="card">' +
+    '<h2>📅 Jadwal Minggu Ini</h2>' +
+    '<div class="weekly-schedule">' +
+    '' + renderWeekSchedule(weekSchedule, dayOfWeek) + '' +
+    '</div>' +
+    '</div>' +
+    '<div class="card">' +
+    '<h2>🏋️ Latihan Hari Ini</h2>' +
+    '' + renderTodayWorkout(todayWorkout) + '' +
+    '</div>' +
+    '<div class="card">' +
+    '<h2>📊 Statistik Cepat</h2>' +
+    '' + renderQuickStats() + '' +
+    '</div>;
+
+    setupHomePageEvents();
+  };
+
+  const getWeekSchedule = function() {
+    const today = new Date();
+    const currentDay = today.getDay();
+    const schedule = [];
+    
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + (i - currentDay));
+      
+      schedule.push({
+        day: i,
+        date: date.getDate(),
+        isToday: i === currentDay,
+        workout: Workout.getByDay(i)
+      });
+    }
+    
+    return schedule;
+  };
+
+  const renderWeekSchedule = function(schedule, currentDay) {
+    const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+    
+    return schedule.map(day => {
+      const hasWorkout = day.workout ? 'has-workout' : '';
+      const isToday = day.isToday ? 'today' : '';
+      
+      return `
+        <div class="day-card ${hasWorkout} ${isToday}" data-day="${day.day}">
+          <div class="day-name">${dayNames[day.day]}</div>
+          <div class="day-number">${day.date}</div>
+          ${day.workout ? `<div class="day-focus">✓</div>` : ''}
+        </div>
+      `;
+    }).join('');
+  };
+
+  const renderTodayWorkout = function(workout) {
+    if (!workout) {
+      return `
+        <div class="empty-state">
+          <div class="empty-state-icon">😴</div>
+          <p>Hari ini hari istirahat</p>
+          <p style="font-size: 14px; margin-top: 8px;">Nikmati hari liburmu!</p>
+        </div>
+      `;
+    }
+
+    const exercises = workout.exercises || [];
+    
+    return `
+      <h3>${workout.name}</h3>
+      <p style="color: var(--text-secondary); margin-bottom: 16px;">
+        ${exercises.length} gerakan • ${workout.estimatedTime || 30} menit
+      </p>
+      
+      <ul class="exercise-list">
+        ${exercises.slice(0, 3).map(ex => `
+          <li class="exercise-item">
+            <div class="exercise-name">${ex.name}</div>
+            <div class="exercise-details">
+              <span>${ex.sets} set</span>
+              <span>${ex.reps} reps</span>
+              ${ex.rest ? `<span>Rest: ${ex.rest}s</span>` : ''}
+            </div>
+          </li>
+        `).join('')}
+      </ul>
+      
+      ${exercises.length > 3 ? `
+        <p style="text-align: center; color: var(--text-secondary); margin-top: 12px;">
+          +${exercises.length - 3} gerakan lainnya
+        </p>
+      ` : ''}
+      
+      <button class="btn btn-primary" onclick="App.startWorkout(${workout.id})">
+        Mulai Latihan
+      </button>
+    `;
+  };
+
+  const renderQuickStats = function() {
+    const history = Storage.get('workoutHistory') || [];
+    const thisWeek = history.filter(h => {
+      const workoutDate = new Date(h.date);
+      const today = new Date();
+      const weekAgo = new Date(today.setDate(today.getDate() - 7));
+      return workoutDate >= weekAgo;
+    });
+
+    const totalWorkouts = thisWeek.length;
+    const totalMinutes = thisWeek.reduce((sum, w) => sum + (w.duration || 0), 0);
+
+    return `
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-value">${totalWorkouts}</div>
+          <div class="stat-label">Latihan Minggu Ini</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value">${totalMinutes}</div>
+          <div class="stat-label">Menit Total</div>
+        </div>
+      </div>
+    `;
+  };
+
+  const setupHomePageEvents = function() {
+    const dayCards = document.querySelectorAll('.day-card');
+    dayCards.forEach(card => {
+      card.addEventListener('click', () => {
+        const day = parseInt(card.dataset.day);
+        showDayDetail(day);
+      });
+    });
+  };
+
+  const showDayDetail = function(day) {
+    const workout = Workout.getByDay(day);
+    if (workout) {
+      console.log('Show workout detail for day:', day);
+    } else {
+      alert('Hari ini adalah hari istirahat');
+    }
+  };
+
+  const startWorkout = function(workoutId) {
+    Session.start(workoutId);
+    navigateTo('workout');
+  };
+
+  const renderWorkoutPage = function(container) {
+    const session = Session.getCurrent();
+    
+    if (!session) {
+      container.innerHTML = <div class="card">' +
+    '<div class="empty-state">' +
+    '<div class="empty-state-icon">🏋️</div>' +
+    '<p>Tidak ada sesi latihan aktif</p>' +
+    '<button class="btn btn-primary" onclick="App.navigateTo(\'home\')" style="margin-top: 16px;">' +
+    'Kembali ke Home' +
+    '</button>' +
+    '</div>' +
+    '</div>;
+      return;
+    }
+
+    const progress = Session.getProgress();
+    const currentExercise = Session.getCurrentExercise();
+
+    container.innerHTML = <div class="card">' +
+    '<h2>🏋️ ' + session.workoutName + '</h2>' +
+    '<div class="workout-progress">' +
+    '<div class="progress-bar">' +
+    '<div class="progress-fill" style="width: ' + progress.percentage + '%"></div>' +
+    '</div>' +
+    '<p style="text-align: center; margin-top: 8px; color: var(--text-secondary);">' +
+    '' + progress.completedSets + ' / ' + progress.totalSets + ' sets • ' + progress.percentage + '%' +
+    '</p>' +
+    '</div>' +
+    '</div>' +
+    '<div class="card">' +
+    '<h3>Gerakan ' + progress.currentExercise + ' dari ' + progress.totalExercises + '</h3>' +
+    '<div class="current-exercise">' +
+    '<div class="exercise-name">' + currentExercise.name + '</div>' +
+    '<div class="exercise-details">' +
+    '<span>Set ' + session.currentSet + ' dari ' + currentExercise.sets + '</span>' +
+    '<span>' + currentExercise.reps + ' reps</span>' +
+    '</div>' +
+    '${currentExercise.rest ?
+            <div class="rest-info">
+              Istirahat: ${currentExercise.rest} detik
+            </div>
+          ` : ''}
+        </div>
+
+        <div class="timer-section">
+          <div class="timer-circle" id="timer-circle">
+            <svg class="timer-svg" viewBox="0 0 100 100">
+              <circle class="timer-circle-bg" cx="50" cy="50" r="45"></circle>
+              <circle class="timer-circle-progress" id="timer-progress" cx="50" cy="50" r="45"></circle>
+            </svg>
+            <div id="timer-display" class="timer-display">00:00</div>
+          </div>
+          
+          <div class="timer-presets">
+            <button class="preset-btn" onclick="App.startRestTimer(30)">30s</button>
+            <button class="preset-btn" onclick="App.startRestTimer(60)">60s</button>
+            <button class="preset-btn" onclick="App.startRestTimer(90)">90s</button>
+            <button class="preset-btn" onclick="App.startRestTimer(120)">120s</button>
+          </div>
+
+          <div class="timer-controls">
+            <button class="btn btn-secondary" id="timer-action-btn" onclick="App.toggleTimer()">
+              Mulai Timer
+            </button>
+            <input type="number" id="custom-timer" placeholder="Custom (detik)" min="5" max="300" style="margin-top: 12px; padding: 12px; width: 100%; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-hover); color: var(--text-primary);">
+            <button class="btn btn-secondary" onclick="App.startCustomTimer()" style="margin-top: 8px;">
+              Mulai Custom Timer
+            </button>
+          </div>
+        </div>
+
+        <div class="workout-controls">
+          <button class="btn btn-primary" onclick="App.completeSet()">
+            Selesaikan Set
+          </button>
+          <button class="btn btn-secondary" onclick="App.skipExercise()" style="margin-top: 12px;">
+            Lewati Gerakan
+          </button>
+          <button class="btn btn-danger" onclick="App.cancelWorkout()" style="margin-top: 12px;">
+            Batalkan Latihan
+          </button>
+        </div>
+      </div>
+    `;
+
+    updateTimerCircle(0);
+  };
+
+  let timerDuration = 0;
+  let timerPaused = false;
+
+  const toggleTimer = function() {
+    const actionBtn = document.getElementById('timer-action-btn');
+    
+    if (!Timer.isActive()) {
+      const currentExercise = Session.getCurrentExercise();
+      const defaultRest = currentExercise.rest || 60;
+      startRestTimer(defaultRest);
+    } else if (Timer.isPaused()) {
+      Timer.resume();
+      actionBtn.textContent = 'Pause Timer';
+      timerPaused = false;
+    } else {
+      Timer.pause();
+      actionBtn.textContent = 'Resume Timer';
+      timerPaused = true;
+    }
+  };
+
+  const completeSet = function() {
+    Session.completeSet();
+    Timer.stop();
+    timerDuration = 0;
+    timerPaused = false;
+    renderPage();
+  };
+
+  const skipExercise = function() {
+    if (confirm('Lewati gerakan ini?')) {
+      Session.skipExercise();
+      Timer.stop();
+      timerDuration = 0;
+      timerPaused = false;
+      renderPage();
+    }
+  };
+
+  const cancelWorkout = function() {
+    if (confirm('Batalkan latihan? Progress akan hilang.')) {
+      Session.clearSession();
+      Timer.stop();
+      timerDuration = 0;
+      timerPaused = false;
+      navigateTo('home');
+    }
+  };
+
+  const startRestTimer = function(seconds) {
+    timerDuration = seconds;
+    const timerDisplay = document.getElementById('timer-display');
+    const actionBtn = document.getElementById('timer-action-btn');
+    
+    Timer.start(seconds, 
+      function(remaining, total) {
+        const mins = Math.floor(remaining / 60);
+        const secs = remaining % 60;
+        timerDisplay.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        
+        const progress = ((total - remaining) / total) * 100;
+        updateTimerCircle(progress);
+      },
+      function() {
+        timerDisplay.textContent = '00:00';
+        updateTimerCircle(100);
+        actionBtn.textContent = 'Mulai Timer';
+        timerDuration = 0;
+        timerPaused = false;
+      }
+    );
+    
+    actionBtn.textContent = 'Pause Timer';
+  };
+
+  const startCustomTimer = function() {
+    const input = document.getElementById('custom-timer');
+    const seconds = parseInt(input.value);
+    
+    if (seconds && seconds >= 5 && seconds <= 300) {
+      startRestTimer(seconds);
+      input.value = '';
+    } else {
+      alert('Masukkan waktu antara 5-300 detik');
+    }
+  };
+
+  const updateTimerCircle = function(progress) {
+    const circle = document.getElementById('timer-progress');
+    if (!circle) return;
+    
+    const radius = 45;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (progress / 100) * circumference;
+    
+    circle.style.strokeDasharray = circumference;
+    circle.style.strokeDashoffset = offset;
+  };
+
+  const renderExercisesPage = function(container) {
+    container.innerHTML = <div class="card">' +
+    '<h2>💪 Library Latihan</h2>' +
+    '<div class="empty-state">' +
+    '<div class="empty-state-icon">🏋️</div>' +
+    '<p>Fitur ini akan datang di Phase 6</p>' +
+    '</div>' +
+    '</div>;
+  };
+
+  const renderHistoryPage = function(container) {
+    const history = Storage.get('workoutHistory') || [];
+
+    if (history.length === 0) {
+      container.innerHTML = <div class="card">' +
+    '<h2>📈 Riwayat Latihan</h2>' +
+    '<div class="empty-state">' +
+    '<div class="empty-state-icon">📊</div>' +
+    '<p>Belum ada riwayat latihan</p>' +
+    '<p style="font-size: 14px; margin-top: 8px;">Selesaikan latihan pertama kamu!</p>' +
+    '</div>' +
+    '</div>;
+      return;
+    }
+
+    const recentHistory = history.slice(-10).reverse();
+
+    container.innerHTML = <div class="card">' +
+    '<h2>📈 Riwayat Latihan</h2>' +
+    '<div class="history-list">' +
+    '${recentHistory.map(h =>
+            <div class="history-item">
+              <div class="history-date">${new Date(h.date).toLocaleDateString('id-ID')}</div>
+              <div class="history-name">${h.workoutName}</div>
+              <div class="history-details">
+                <span>${h.duration} menit</span>
+                <span>${h.completedExercises}/${h.totalExercises} gerakan</span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  };
+
+  const renderProgressPage = function(container) {
+    const totalWorkouts = Progress.getTotalWorkouts();
+    const totalMinutes = Progress.getTotalMinutes();
+    const currentStreak = Progress.getCurrentStreak();
+    const longestStreak = Progress.getLongestStreak();
+    const latestWeight = Progress.getLatestWeight();
+    const weightChange = Progress.getWeightChange();
+    const weeklyStats = Progress.getWeeklyStats();
+    
+    container.innerHTML = <div class="card">' +
+    '<h2>📊 Progress Overview</h2>' +
+    '<div class="stats-grid">' +
+    '<div class="stat-box">' +
+    '<div class="stat-value">' + totalWorkouts + '</div>' +
+    '<div class="stat-label">Total Workouts</div>' +
+    '</div>' +
+    '<div class="stat-box">' +
+    '<div class="stat-value">' + totalMinutes + '</div>' +
+    '<div class="stat-label">Total Minutes</div>' +
+    '</div>' +
+    '<div class="stat-box">' +
+    '<div class="stat-value">' + currentStreak + '</div>' +
+    '<div class="stat-label">Current Streak</div>' +
+    '</div>' +
+    '<div class="stat-box">' +
+    '<div class="stat-value">' + longestStreak + '</div>' +
+    '<div class="stat-label">Longest Streak</div>' +
+    '</div>' +
+    '</div>' +
+    '</div>' +
+    '<div class="card">' +
+    '<h2>⚖️ Weight Tracking</h2>' +
+    '${latestWeight ?
+          <div class="weight-display">
+            <div class="weight-current">
+              <span class="weight-value">${latestWeight.weight}</span>
+              <span class="weight-unit">kg</span>
+            </div>
+            ${weightChange ? `
+              <div class="weight-change ${weightChange.change < 0 ? 'weight-loss' : 'weight-gain'}">
+                ${weightChange.change > 0 ? '+' : ''}${weightChange.change} kg (${weightChange.percentage}%)
+              </div>
+            ` : ''}
+          </div>
+        ` : '<p class="empty-state">No weight data yet</p>'}
+        <button class="btn btn-primary" onclick="App.showAddWeightModal()">Add Weight</button>
+      </div>
+      
+      <div class="card">
+        <h2>📈 Weekly Activity</h2>
+        <div class="weekly-chart">
+          ${weeklyStats.map((week, index) => `
+            <div class="week-bar">
+              <div class="bar-fill" style="height: ${Math.min(week.workouts * 20, 100)}%"></div>
+              <div class="bar-label">W${4 - index}</div>
+            </div>
+          `).join('')}
+        </div>
+        <div class="weekly-summary">
+          <p>This week: ${weeklyStats[3].workouts} workouts, ${weeklyStats[3].totalMinutes} minutes</p>
+        </div>
+      </div>
+      
+      <div class="card">
+        <h2>📏 Body Measurements</h2>
+        <button class="btn btn-secondary" onclick="App.showAddMeasurementModal()">Add Measurement</button>
+        <div class="measurements-list" id="measurements-list">
+          ${renderMeasurementsList()}
+        </div>
+      </div>
+    `;
+  };
+
+  const renderMeasurementsList = function() {
+    const measurements = Progress.getMeasurements();
+    if (measurements.length === 0) {
+      return '<p class="empty-state">No measurements yet</p>';
+    }
+    
+    const grouped = {};
+    measurements.forEach(m => {
+      if (!grouped[m.type]) grouped[m.type] = [];
+      grouped[m.type].push(m);
+    });
+    
+    return Object.keys(grouped).map(type => {
+      const latest = grouped[type][grouped[type].length - 1];
+      return `
+        <div class="measurement-item">
+          <div class="measurement-type">${type}</div>
+          <div class="measurement-value">${latest.value} ${latest.unit}</div>
+          <div class="measurement-date">${new Date(latest.date).toLocaleDateString()}</div>
+        </div>
+      `;
+    }).join('');
+  };
+
+  const showAddWeightModal = function() {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = <div class="modal-content">' +
+    '<h3>Add Weight</h3>' +
+    '<input type="number" id="weight-input" placeholder="Weight (kg)" step="0.1" min="20" max="300">' +
+    '<input type="date" id="weight-date" value="' + new Date().toISOString().split(\'T\')[0] + '">' +
+    '<div class="modal-buttons">' +
+    '<button class="btn btn-secondary" onclick="App.closeModal()">Cancel</button>' +
+    '<button class="btn btn-primary" onclick="App.saveWeight()">Save</button>' +
+    '</div>' +
+    '</div>;
+    document.body.appendChild(modal);
+  };
+
+  const showAddMeasurementModal = function() {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = <div class="modal-content">' +
+    '<h3>Add Measurement</h3>' +
+    '<select id="measurement-type">' +
+    '<option value="chest">Chest</option>' +
+    '<option value="waist">Waist</option>' +
+    '<option value="hips">Hips</option>' +
+    '<option value="arm">Arm</option>' +
+    '<option value="thigh">Thigh</option>' +
+    '</select>' +
+    '<input type="number" id="measurement-value" placeholder="Value" step="0.1" min="0">' +
+    '<select id="measurement-unit">' +
+    '<option value="cm">cm</option>' +
+    '<option value="in">in</option>' +
+    '</select>' +
+    '<input type="date" id="measurement-date" value="' + new Date().toISOString().split(\'T\')[0] + '">' +
+    '<div class="modal-buttons">' +
+    '<button class="btn btn-secondary" onclick="App.closeModal()">Cancel</button>' +
+    '<button class="btn btn-primary" onclick="App.saveMeasurement()">Save</button>' +
+    '</div>' +
+    '</div>;
+    document.body.appendChild(modal);
+  };
+
+  const closeModal = function() {
+    const modal = document.querySelector('.modal');
+    if (modal) modal.remove();
+  };
+
+  const saveWeight = function() {
+    const weight = document.getElementById('weight-input').value;
+    const date = document.getElementById('weight-date').value;
+    
+    if (!weight || weight < 20 || weight > 300) {
+      alert('Please enter a valid weight (20-300 kg)');
+      return;
+    }
+    
+    Progress.saveWeightLog(weight, new Date(date).toISOString());
+    closeModal();
+    renderPage();
+  };
+
+  const saveMeasurement = function() {
+    const type = document.getElementById('measurement-type').value;
+    const value = document.getElementById('measurement-value').value;
+    const unit = document.getElementById('measurement-unit').value;
+    const date = document.getElementById('measurement-date').value;
+    
+    if (!value || value <= 0) {
+      alert('Please enter a valid value');
+      return;
+    }
+    
+    Progress.saveMeasurement(type, value, unit, new Date(date).toISOString());
+    closeModal();
+    renderPage();
+  };
+
+  const renderSettingsPage = function(container) {
+    const settings = Settings.getSettings();
+    
+    container.innerHTML = <div class="card">' +
+    '<h2>⚙️ Pengaturan</h2>' +
+    '<div class="settings-section">' +
+    '<h3>Timer & Rest</h3>' +
+    '<div class="setting-item">' +
+    '<label>Default Rest Time (detik)</label>' +
+    '<input type="number" id="defaultRestTime" value="' + settings.defaultRestTime + '" min="10" max="300">' +
+    '</div>' +
+    '<div class="setting-item">' +
+    '<label>Timer Sound</label>' +
+    '<label class="switch">' +
+    '<input type="checkbox" id="timerSound" ' + settings.timerSound ? \'checked\' : \'' + '>' +
+    '<span class="slider"></span>' +
+    '</label>' +
+    '</div>' +
+    '<div class="setting-item">' +
+    '<label>Vibration</label>' +
+    '<label class="switch">' +
+    '<input type="checkbox" id="vibration" ' + settings.vibration ? \'checked\' : \'' + '>' +
+    '<span class="slider"></span>' +
+    '</label>' +
+    '</div>' +
+    '</div>' +
+    '<div class="settings-section">' +
+    '<h3>Units</h3>' +
+    '<div class="setting-item">' +
+    '<label>Weight Unit</label>' +
+    '<select id="weightUnit">' +
+    '<option value="kg" ' + settings.weightUnit === \'kg\' ? \'selected\' : \'' + '>Kilogram (kg)</option>' +
+    '<option value="lbs" ' + settings.weightUnit === \'lbs\' ? \'selected\' : \'' + '>Pounds (lbs)</option>' +
+    '</select>' +
+    '</div>' +
+    '<div class="setting-item">' +
+    '<label>Measurement Unit</label>' +
+    '<select id="measurementUnit">' +
+    '<option value="cm" ' + settings.measurementUnit === \'cm\' ? \'selected\' : \'' + '>Centimeter (cm)</option>' +
+    '<option value="in" ' + settings.measurementUnit === \'in\' ? \'selected\' : \'' + '>Inch (in)</option>' +
+    '</select>' +
+    '</div>' +
+    '</div>' +
+    '<div class="settings-section">' +
+    '<h3>Data Management</h3>' +
+    '<button class="btn btn-secondary" onclick="App.exportData()">Export Data</button>' +
+    '<button class="btn btn-secondary" onclick="App.showImportModal()">Import Data</button>' +
+    '<button class="btn btn-danger" onclick="App.resetSettings()">Reset Settings</button>' +
+    '<button class="btn btn-danger" onclick="App.clearAllData()">Clear All Data</button>' +
+    '</div>' +
+    '<div class="settings-section">' +
+    '<h3>About</h3>' +
+    '<p class="about-text">Workout Personal v1.0</p>' +
+    'vibration: document.getElementById(\'vibration\').checked,' +
+    'weightUnit: document.getElementById(\'weightUnit\').value,' +
+    'measurementUnit: document.getElementById(\'measurementUnit\').value' +
+    '};' +
+    'Settings.saveSettings(newSettings);' +
+    'alert(\'Settings saved!\');' +
+    '};' +
+    'const resetSettings = function() {' +
+    'if (confirm(\'Reset all settings to default?\')) {' +
+    'Settings.resetToDefault();' +
+    'renderPage();' +
+    '}' +
+    '};' +
+    'const clearAllData = function() {' +
+    'if (Settings.clearAllData()) {' +
+    'alert(\'All data cleared!\');' +
+    'location.reload();' +
+    '}' +
+    '};' +
+    'const exportData = function() {' +
+    'const result = ExportImport.exportToJSON();' +
+    'if (result.success) {' +
+    'alert(\'Data berhasil di-export: ' + result.filename);' +
+    '} else {' +
+    'alert(\'Error: ' + result.error);' +
+    '}' +
+    '};' +
+    'const showImportModal = function() {' +
+    'const modal = document.createElement(\'div\');' +
+    'modal.className = \'modal\';' +
+    'modal.innerHTML = \'<div class="modal-content">\' +' +
+    '\'<h3>Import Data</h3>\' +' +
+    '\'<input type="file" id="importFile" accept=".json">\' +' +
+    '\'<div class="modal-buttons">\' +' +
+    '\'<button class="btn btn-secondary" onclick="App.closeModal()">Cancel</button>\' +' +
+    '\'<button class="btn btn-primary" onclick="App.importData()">Import</button>\' +' +
+    '\'</div>\' +' +
+    '\'</div>\';' +
+    'document.body.appendChild(modal);' +
+    '};' +
+    'const importData = function() {' +
+    'const fileInput = document.getElementById(\'importFile\');' +
+    'const file = fileInput.files[0];' +
+    'if (!file) {' +
+    'alert(\'Please select a file\');' +
+    'return;' +
+    '}' +
+    'ExportImport.importFromJSON(file, function(result) {' +
+    'if (result.success) {' +
+    'const preview = result.preview;' +
+    'const confirmMsg = \'Import data berikut?' +
+    '\' +' +
+    '\'Workouts: ' + preview.workouts + '' +
+    '\' +' +
+    '\'History: ' + preview.history + '' +
+    '\' +' +
+    '\'Weight Logs: ' + preview.weightLogs + '' +
+    '\' +' +
+    '\'Measurements: ' + preview.measurements + '' +
+    '\' +' +
+    '\'Data saat ini akan ditimpa!\';' +
+    'if (confirm(confirmMsg)) {' +
+    'const importResult = ExportImport.confirmImport(result.data);' +
+    'if (importResult.success) {' +
+    'alert(\'Import berhasil!\');' +
+    'closeModal();' +
+    'location.reload();' +
+    '} else {' +
+    'alert(\'Error: ' + importResult.error);' +
+    '}' +
+    '}' +
+    '} else {' +
+    'alert(\'Error: ' + result.error);' +
+    '}' +
+    '});' +
+    '};' +
+    'const exportToCSV = function(type) {' +
+    'const result = ExportImport.exportToCSV(type);' +
+    'if (result.success) {' +
+    'alert(\'CSV berhasil di-export: ' + result.filename);' +
+    '} else {' +
+    'alert(\'Error: ' + result.error);' +
+    '}' +
+    '};' +
+    'const triggerAutoBackup = function() {' +
+    'const result = ExportImport.autoBackup();' +
+    'alert(result.message);' +
+    '};' +
+    'const restoreAutoBackup = function() {' +
+    'if (confirm(\'Restore dari auto-backup? Data saat ini akan ditimpa!\')) {' +
+    'const result = ExportImport.restoreAutoBackup();' +
+    'if (result.success) {' +
+    'alert(\'Auto-backup berhasil di-restore!\');' +
+    'location.reload();' +
+    '} else {' +
+    'alert(\'Error: ' + result.error);' +
+    '}' +
+    '}' +
+    '};' +
+    'const showStorageInfo = function() {' +
+    'const info = ExportImport.getStorageInfo();' +
+    'if (info) {' +
+    'const lastBackup = info.lastAutoBackup' +
+    '? new Date(info.lastAutoBackup).toLocaleString(\'id-ID\')' +
+    ': \'Belum ada\';' +
+    'alert(' +
+    '\'Storage Info:' +
+    '\' +' +
+    '\'Workouts: ' + info.workouts + '' +
+    '\' +' +
+    '\'History: ' + info.history + '' +
+    '\' +' +
+    '\'Weight Logs: ' + info.weightLogs + '' +
+    '\' +' +
+    '\'Measurements: ' + info.measurements + '' +
+    '\' +' +
+    '\'Auto-backup: ' + (info.hasAutoBackup ? \'Ada\' : \'Tidak ada\') + '' +
+    '\' +' +
+    '\'Last Backup: ' + lastBackup' +
+    ');' +
+    '}' +
+    '};' +
+    'return {' +
+    'init: init,' +
+    'navigateTo: navigateTo,' +
+    'startWorkout: startWorkout,' +
+    'completeSet: completeSet,' +
+    'skipExercise: skipExercise,' +
+    'cancelWorkout: cancelWorkout,' +
+    'startRestTimer: startRestTimer,' +
+    'startCustomTimer: startCustomTimer,' +
+    'toggleTimer: toggleTimer,' +
+    'showAddWeightModal: showAddWeightModal,' +
+    'showAddMeasurementModal: showAddMeasurementModal,' +
+    'closeModal: closeModal,' +
+    'saveWeight: saveWeight,' +
+    'saveMeasurement: saveMeasurement,' +
+    'saveSettings: saveSettings,' +
+    'resetSettings: resetSettings,' +
+    'clearAllData: clearAllData,' +
+    'exportData: exportData,' +
+    'showImportModal: showImportModal,' +
+    'importData: importData,' +
+    'exportToCSV: exportToCSV,' +
+    'triggerAutoBackup: triggerAutoBackup,' +
+    'restoreAutoBackup: restoreAutoBackup,' +
+    'showStorageInfo: showStorageInfo' +
+    '};' +
+    '})();' +
+    'document.addEventListener(\'DOMContentLoaded\', function() {' +
+    'App.init();' +
+    '});' +
+    '// Statistics Page' +
+    'const renderStatisticsPage = function() {' +
+    'const allTimeStats = Statistics.getAllTimeStats();' +
+    'const monthlyStats = Statistics.getMonthlyStats();' +
+    'const mostFrequent = Statistics.getMostFrequentWorkout();' +
+    'const favoriteExercises = Statistics.getFavoriteExercises();' +
+    'const workoutsByDay = Statistics.getWorkoutsByDayOfWeek();' +
+    'const workoutsByMonth = Statistics.getWorkoutsByMonth();' +
+    'const mainContent = document.getElementById(\'main-content\');' +
+    'mainContent.innerHTML =
+    <div class="stats-header">
+      <h2>📊 Statistics</h2>
+    </div>
+
+    <div class="stats-section">
+      <h3>All Time</h3>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value">${allTimeStats.totalWorkouts}</div>
+          <div class="stat-label">Total Workouts</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${allTimeStats.totalMinutes}</div>
+          <div class="stat-label">Total Minutes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${allTimeStats.totalSets}</div>
+          <div class="stat-label">Total Sets</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${allTimeStats.averageDuration}</div>
+          <div class="stat-label">Avg Duration (min)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${allTimeStats.completionRate}%</div>
+          <div class="stat-label">Completion Rate</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-section">
+      <h3>This Month</h3>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value">${monthlyStats.workouts}</div>
+          <div class="stat-label">Workouts</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${monthlyStats.minutes}</div>
+          <div class="stat-label">Minutes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${monthlyStats.sets}</div>
+          <div class="stat-label">Sets</div>
+        </div>
+      </div>
+    </div>
+
+    ${mostFrequent ? `
+    <div class="stats-section">
+      <h3>Most Frequent Workout</h3>
+      <div class="highlight-card">
+        <div class="highlight-value">${mostFrequent.name}</div>
+        <div class="highlight-label">${mostFrequent.count} times</div>
+      </div>
+    </div>
+    ` : ''}
+
+    ${favoriteExercises.length > 0 ? `
+    <div class="stats-section">
+      <h3>Top 5 Exercises</h3>
+      <div class="exercise-ranking">
+        ${favoriteExercises.map((ex, index) => `
+          <div class="ranking-item">
+            <div class="ranking-number">#${index + 1}</div>
+            <div class="ranking-name">${ex.name}</div>
+            <div class="ranking-count">${ex.count}x</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    ` : ''}
+
+    <div class="stats-section">
+      <h3>Workouts by Day of Week</h3>
+      <div class="bar-chart">
+        ${workoutsByDay.map(day => `
+          <div class="bar-item">
+            <div class="bar-label">${day.day.substring(0, 3)}</div>
+            <div class="bar-container">
+              <div class="bar-fill" style="height: ${day.count * 20}px"></div>
+            </div>
+            <div class="bar-value">${day.count}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    ${workoutsByMonth.length > 0 ? `
+    <div class="stats-section">
+      <h3>Monthly Progress</h3>
+      <div class="line-chart">
+        ${workoutsByMonth.slice(-6).map(month => `
+          <div class="line-point">
+            <div class="point-dot"></div>
+            <div class="point-label">${month.month.substring(5)}</div>
+            <div class="point-value">${month.count}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    ` : ''}
+  `;
+};
+
+// Export/Import Functions
+const exportData = function() {
+  const result = ExportImport.exportToJSON();
+  if (result.success) {
+    alert('Data berhasil di-export ke ' + result.filename);
+  } else {
+    alert('Error: ' + result.error);
+  }
+};
+
+const exportToCSV = function(type) {
+  const result = ExportImport.exportToCSV(type);
+  if (result.success) {
+    alert('Data berhasil di-export ke ' + result.filename);
+  } else {
+    alert('Error: ' + result.error);
+  }
+};
+
+const importData = function() {
+    const fileInput = document.getElementById('importFile');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+      alert('Please select a file');
+      return;
+    }
+    
+    ExportImport.importFromJSON(file, function(result) {
+      if (result.success) {
+        const preview = result.preview;
+        const confirmMsg = 'Import data berikut?
+
+' +
+          'Workouts: ' + preview.workouts + '
+' +
+          'History: ' + preview.history + '
+' +
+          'Weight Logs: ' + preview.weightLogs + '
+' +
+          'Measurements: ' + preview.measurements + '
+
+' +
+          'Data saat ini akan ditimpa!';
+        
+        if (confirm(confirmMsg)) {
+          const importResult = ExportImport.confirmImport(result.data);
+          if (importResult.success) {
+            alert('Import berhasil!');
+            closeModal();
+            location.reload();
+          } else {
+            alert('Error: ' + importResult.error);
+          }
+        }
+      } else {
+        alert('Error: ' + result.error);
+      }
+    });
+  };
+  
+  input.click();
+};
+
+const restoreBackup = function() {
+  if (confirm('Restore dari auto-backup? Data saat ini akan ditimpa.')) {
+    const result = ExportImport.restoreAutoBackup();
+    if (result.success) {
+      alert(result.message);
+      location.reload();
+    } else {
+      alert('Error: ' + result.error);
+    }
+  }
+};
+
+const getStorageInfo = function() {
+  return ExportImport.getStorageInfo();
+};
+
+// Export/Import Functions
+function exportData() {
+  const result = ExportImport.exportToJSON();
+  if (result.success) {
+    showNotification('Data berhasil di-export: ' + result.filename, 'success');
+  } else {
+    showNotification('Error export: ' + result.error, 'error');
+  }
+}
+
+function importData() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  
+  input.onchange = function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    ExportImport.importFromJSON(file, function(result) {
+      if (result.success) {
+        if (confirm('Data valid. Import data ini?\n\nWorkouts: ' + result.preview.workouts + '\nHistory: ' + result.preview.history + '\nWeight Logs: ' + result.preview.weightLogs + '\nMeasurements: ' + result.preview.measurements)) {
+          const confirmResult = ExportImport.confirmImport(result.data);
+          if (confirmResult.success) {
+            showNotification('Data berhasil di-import', 'success');
+            setTimeout(() => location.reload(), 1000);
+          } else {
+            showNotification('Error import: ' + confirmResult.error, 'error');
+          }
+        }
+      } else {
+        showNotification('Error: ' + result.error, 'error');
+      }
+    });
+  };
+  
+  input.click();
+}
+
+function autoBackup() {
+  const result = ExportImport.autoBackup();
+  if (result.success) {
+    showNotification(result.message, 'success');
+  } else {
+    showNotification('Error auto-backup: ' + result.error, 'error');
+  }
+}
+
+function restoreAutoBackup() {
+  if (confirm('Restore dari auto-backup? Data saat ini akan ditimpa.')) {
+    const result = ExportImport.restoreAutoBackup();
+    if (result.success) {
+      showNotification(result.message, 'success');
+      setTimeout(() => location.reload(), 1000);
+    } else {
+      showNotification('Error restore: ' + result.error, 'error');
+    }
+  }
+}
+
+function showStorageInfo() {
+  const info = ExportImport.getStorageInfo();
+  if (info) {
+    const lastBackup = info.lastAutoBackup ? new Date(info.lastAutoBackup).toLocaleString('id-ID') : 'Belum ada';
+    alert(
+      'Storage Information:\n\n' +
+      'Workouts: ' + info.workouts + '\n' +
+      'History: ' + info.history + '\n' +
+      'Weight Logs: ' + info.weightLogs + '\n' +
+      'Measurements: ' + info.measurements + '\n' +
+      'Has Auto-Backup: ' + (info.hasAutoBackup ? 'Yes' : 'No') + '\n' +
+      'Last Auto-Backup: ' + lastBackup
+    );
+  }
+}
+
+function exportToCSV(type) {
+  const result = ExportImport.exportToCSV(type);
+  if (result.success) {
+    showNotification('CSV berhasil di-export: ' + result.filename, 'success');
+  } else {
+    showNotification('Error export CSV: ' + result.error, 'error');
+  }
+}

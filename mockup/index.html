@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workout App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --ink:#14120F;--yellow:#FFC72C;--blue:#2F5EFF;
+  --bg:#FAFAF7;--surface:#FFFFFF;--border:#EBE9E2;
+  --muted:#B8B5AA;--muted-dark:#8A8880;
+}
+body{font-family:'Work Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;display:flex;justify-content:center}
+.phone{width:100%;max-width:420px;min-height:100vh;background:var(--bg);position:relative}
+h1,h2,h3{font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:-0.01em}
+.mono{font-family:'IBM Plex Mono',monospace}
+.lbl{font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:0.1em;font-size:11px;color:var(--muted-dark)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fi{animation:fadeUp .4s ease-out both}
+.d1{animation-delay:.05s}.d2{animation-delay:.1s}.d3{animation-delay:.15s}.d4{animation-delay:.2s}.d5{animation-delay:.25s}
+
+.screen{display:none;padding:0 0 100px}
+.screen.active{display:block}
+
+/* Header */
+.hdr{background:var(--ink);color:var(--surface);padding:28px 24px 24px;position:relative;overflow:hidden}
+.hdr::after{content:'';position:absolute;top:-50px;right:-50px;width:140px;height:140px;background:var(--yellow);border-radius:50%;opacity:.08}
+.hdr h1{font-size:28px;margin-bottom:4px}
+.hdr .sub{font-size:14px;color:var(--muted)}
+
+/* Nav */
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:var(--surface);border-top:1.5px solid var(--border);display:flex;justify-content:space-around;padding:10px 0 14px;z-index:100}
+.nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;color:var(--muted);font-family:'Work Sans',sans-serif;font-size:11px;font-weight:500;padding:4px 10px;transition:color .2s}
+.nav-btn svg{width:20px;height:20px;stroke-width:2}
+.nav-btn.on{color:var(--ink);font-weight:600}
+
+/* Cards */
+.card{background:var(--surface);border:1.5px solid var(--border);border-radius:18px;padding:18px;margin-bottom:12px;transition:border-color .2s}
+.card:active{border-color:var(--ink)}
+
+/* Workout card */
+.wk{cursor:pointer}
+.wk-icon{width:44px;height:44px;border:1.5px solid var(--ink);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.wk-icon svg{width:22px;height:22px;stroke:var(--ink);stroke-width:2}
+.wk h3{font-size:17px;margin-bottom:4px}
+.wk .desc{font-size:13px;color:var(--muted-dark);margin-bottom:10px}
+.wk .meta{display:flex;gap:14px;font-size:12px;color:var(--muted-dark);font-family:'IBM Plex Mono',monospace}
+.wk .meta span{display:flex;align-items:center;gap:4px}
+.wk .meta svg{width:13px;height:13px;stroke-width:2}
+
+/* Badge */
+.badge{display:inline-block;padding:3px 10px;border-radius:10px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+.b-low{background:var(--ink);color:var(--surface)}
+.b-med{background:var(--yellow);color:var(--ink)}
+.b-high{background:var(--blue);color:var(--surface)}
+
+/* CTA */
+.cta{background:var(--yellow);color:var(--ink);border:none;padding:16px 24px;border-radius:16px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;width:100%;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .15s}
+.cta:active{transform:scale(.97)}
+.cta svg{width:18px;height:18px;stroke-width:2.5}
+
+.btn2{background:var(--surface);color:var(--ink);border:1.5px solid var(--border);padding:10px 16px;border-radius:12px;font-family:'Work Sans',sans-serif;font-weight:500;font-size:14px;cursor:pointer;transition:border-color .2s}
+.btn2:active{border-color:var(--ink)}
+
+/* Section */
+.sec{padding:0 20px;margin-bottom:22px}
+.sec-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.sec-title{font-size:15px;font-weight:600}
+.sec-link{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--blue);text-transform:uppercase;letter-spacing:.1em;cursor:pointer}
+
+/* Streak */
+.streak{background:var(--yellow);border:1.5px solid var(--ink);border-radius:18px;padding:18px 20px;display:flex;align-items:center;gap:16px;margin:0 20px 22px}
+.streak-ic{width:44px;height:44px;border:1.5px solid var(--ink);border-radius:12px;background:var(--surface);display:flex;align-items:center;justify-content:center}
+.streak-ic svg{width:22px;height:22px;stroke:var(--ink);stroke-width:2}
+.streak-val{font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:600;line-height:1}
+.streak-lbl{font-size:12px;color:var(--ink);opacity:.75;margin-top:2px}
+
+/* Stats grid */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sc{background:var(--surface);border:1.5px solid var(--border);border-radius:18px;padding:16px}
+.sc-ic{width:36px;height:36px;border:1.5px solid var(--ink);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.sc-ic svg{width:18px;height:18px;stroke:var(--ink);stroke-width:2}
+.sc-val{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;margin-bottom:2px}
+.sc-lbl{font-size:11px;color:var(--muted-dark)}
+
+/* Chart */
+.cht{background:var(--surface);border:1.5px solid var(--border);border-radius:18px;padding:18px;margin-bottom:16px}
+.cht-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.cht-val{font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:600}
+.cht-diff{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--blue);margin-top:2px}
+.cht svg{width:100%;height:110px;display:block}
+.cht-axis{display:flex;justify-content:space-between;margin-top:6px}
+
+/* History */
+.hi{background:var(--surface);border:1.5px solid var(--border);border-radius:18px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px}
+.hi-ic{width:40px;height:40px;border:1.5px solid var(--ink);border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hi-ic svg{width:20px;height:20px;stroke:var(--ink);stroke-width:2}
+.hi-info{flex:1;min-width:0}
+.hi-ttl{font-weight:600;font-size:14px;margin-bottom:2px}
+.hi-meta{font-size:12px;color:var(--muted-dark)}
+.hi-date{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);flex-shrink:0}
+.tl-lbl{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin:18px 0 10px}
+
+/* Session */
+.sess{padding:20px}
+.sess-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
+.sess-name{text-align:center;margin-bottom:28px}
+.sess-name h2{font-size:22px;margin-bottom:6px}
+.sess-name .info{font-size:13px;color:var(--muted-dark)}
+
+/* Timer ring */
+.timer-wrap{display:flex;justify-content:center;margin:16px 0 32px}
+.timer-ring{width:220px;height:220px;position:relative;display:flex;align-items:center;justify-content:center}
+.timer-ring svg{position:absolute;transform:rotate(-90deg)}
+.timer-ring circle{fill:none;stroke-linecap:round}
+.t-bg{stroke:var(--border);stroke-width:6}
+.t-prog{stroke:var(--yellow);stroke-width:6;stroke-dasharray:628;stroke-dashoffset:157}
+.t-val{font-family:'IBM Plex Mono',monospace;font-size:48px;font-weight:600;color:var(--ink)}
+.t-lbl{text-align:center;font-size:12px;color:var(--muted-dark);margin-top:-20px;margin-bottom:28px}
+
+/* Rep counter */
+.reps{display:flex;justify-content:center;align-items:baseline;gap:6px;margin-bottom:28px}
+.rep-cur{font-family:'IBM Plex Mono',monospace;font-size:56px;font-weight:600;color:var(--ink)}
+.rep-tot{font-family:'IBM Plex Mono',monospace;font-size:22px;color:var(--muted)}
+
+/* Progress dots */
+.dots{display:flex;justify-content:center;gap:6px;margin-bottom:22px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--border)}
+.dot.done{background:var(--ink)}
+.dot.cur{background:var(--yellow);width:22px;border-radius:4px}
+
+.sess-acts{display:flex;gap:10px;margin-top:16px}
+.sess-acts .cta{flex:2}
+.sess-acts .btn2{flex:1}
+
+/* Settings */
+.sg-grp{background:var(--surface);border:1.5px solid var(--border);border-radius:18px;overflow:hidden;margin-bottom:14px}
+.sg-it{padding:15px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+.sg-it:last-child{border-bottom:none}
+.sg-lbl{font-size:14px;font-weight:500}
+.sg-val{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--muted-dark)}
+
+.toggle{width:44px;height:26px;background:var(--border);border-radius:13px;position:relative;cursor:pointer;transition:background .3s}
+.toggle.on{background:var(--yellow)}
+.toggle::after{content:'';position:absolute;width:20px;height:20px;background:var(--surface);border:1.5px solid var(--ink);border-radius:50%;top:3px;left:3px;transition:transform .3s}
+.toggle.on::after{transform:translateX(18px)}
+
+/* Pills */
+.pills{display:flex;gap:8px;margin-bottom:18px;overflow-x:auto}
+.pill{background:var(--surface);border:1.5px solid var(--border);padding:7px 14px;border-radius:11px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;transition:all .2s}
+.pill.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+
+.pad{padding:0 20px}
+</style>
+</head>
+<body>
+<div class="phone">
+
+<!-- HOME -->
+<div class="screen active" id="s-home">
+  <div class="hdr fi"><h1>Workout</h1><div class="sub">Senin, 23 Juli 2026</div></div>
+  <div style="padding:20px 0 0">
+    <div class="streak fi d1">
+      <div class="streak-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+      <div><div class="streak-val">7</div><div class="streak-lbl">Hari streak aktif</div></div>
+    </div>
+    <div class="sec fi d2">
+      <div class="sec-hdr"><div class="sec-title">Workout Hari Ini</div><div class="sec-link">Lihat Semua</div></div>
+      <div class="card wk" onclick="go('session')">
+        <div class="wk-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6.5 6.5l11 11M6.5 17.5l11-11M12 2v20"/></svg></div>
+        <h3>Full Body A</h3>
+        <div class="desc">5 exercise · Beginner friendly</div>
+        <div style="margin-bottom:10px"><span class="badge b-med">Medium</span></div>
+        <div class="meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>30 min</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>220 cal</span></div>
+      </div>
+      <div class="card wk">
+        <div class="wk-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg></div>
+        <h3>Posture & Back</h3>
+        <div class="desc">4 exercise · Focus form</div>
+        <div style="margin-bottom:10px"><span class="badge b-low">Low</span></div>
+        <div class="meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>25 min</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>150 cal</span></div>
+      </div>
+      <div class="card wk">
+        <div class="wk-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div>
+        <h3>Core & Flexibility</h3>
+        <div class="desc">6 exercise · Intermediate</div>
+        <div style="margin-bottom:10px"><span class="badge b-high">High</span></div>
+        <div class="meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>35 min</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>280 cal</span></div>
+      </div>
+    </div>
+    <div class="pad fi d3"><button class="cta" onclick="go('session')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>Mulai Workout</button></div>
+  </div>
+</div>
+
+<!-- SESSION -->
+<div class="screen sess" id="s-session">
+  <div class="sess-top fi">
+    <button class="btn2" onclick="go('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:14px;height:14px;stroke-width:2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Keluar</button>
+    <div class="lbl">Exercise 2/5</div>
+  </div>
+  <div class="dots fi d1"><div class="dot done"></div><div class="dot cur"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+  <div class="sess-name fi d2"><h2>Push-up</h2><div class="info">Set 2 dari 3 · 60s rest</div></div>
+  <div class="timer-wrap fi d3">
+    <div class="timer-ring">
+      <svg width="220" height="220" viewBox="0 0 220 220"><circle class="t-bg" cx="110" cy="110" r="100"/><circle class="t-prog" cx="110" cy="110" r="100"/></svg>
+      <div class="t-val">0:45</div>
+    </div>
+  </div>
+  <div class="t-lbl fi d3">Sisa waktu istirahat</div>
+  <div class="reps fi d4"><span class="rep-cur">8</span><span class="rep-tot">/ 12 reps</span></div>
+  <button class="cta fi d5"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>Selesai Set</button>
+  <div class="sess-acts fi d5"><button class="btn2">Pause</button><button class="btn2">Skip</button></div>
+</div>
+
+<!-- PROGRESS -->
+<div class="screen" id="s-progress">
+  <div class="hdr fi"><h1>Progress</h1><div class="sub">Pantau perkembanganmu</div></div>
+  <div style="padding:20px 0 0">
+    <div class="sec fi d1">
+      <div class="sec-title" style="margin-bottom:12px">Berat Badan</div>
+      <div class="cht">
+        <div class="cht-hdr"><div><div class="cht-val">65.5 kg</div><div class="cht-diff">↓ 1.2 kg dari bulan lalu</div></div><button class="btn2" style="padding:6px 12px;font-size:12px">+ Catat</button></div>
+        <svg viewBox="0 0 340 110" preserveAspectRatio="none"><path d="M0,85 C40,80 80,65 120,60 C160,55 200,70 240,45 C280,25 320,18 340,12" fill="none" stroke="#2F5EFF" stroke-width="2.5" stroke-linecap="round"/><circle cx="340" cy="12" r="4" fill="#2F5EFF"/></svg>
+        <div class="cht-axis"><span class="lbl">1 Jun</span><span class="lbl">15 Jun</span><span class="lbl">30 Jun</span><span class="lbl">15 Jul</span></div>
+      </div>
+    </div>
+    <div class="sec fi d2">
+      <div class="sec-title" style="margin-bottom:12px">Pengukuran Tubuh</div>
+      <div class="sg">
+        <div class="sc"><div class="sc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M2 12h20M12 2v20"/></svg></div><div class="sc-val">86</div><div class="sc-lbl">Pinggang (cm)</div></div>
+        <div class="sc"><div class="sc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6.5 6.5l11 11M6.5 17.5l11-11"/></svg></div><div class="sc-val">32</div><div class="sc-lbl">Lengan (cm)</div></div>
+        <div class="sc"><div class="sc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v20M2 12h20"/></svg></div><div class="sc-val">54</div><div class="sc-lbl">Paha (cm)</div></div>
+        <div class="sc"><div class="sc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z"/></svg></div><div class="sc-val">96</div><div class="sc-lbl">Dada (cm)</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATISTICS -->
+<div class="screen" id="s-stats">
+  <div class="hdr fi"><h1>Statistics</h1><div class="sub">Performa overall</div></div>
+  <div style="padding:20px 0">
+    <div class="sec fi d1">
+      <div class="sg">
+        <div class="sc"><div class="sc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 00-8 0v2"/></svg></div><div class="sc-val">48</div><div class="sc-lbl">Total Workout</div></div>
+        <div class="sc"><div class="sc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div><div class="sc-val">7</div><div class="sc-lbl">Current Streak</div></div>
+        <div class="sc"><div class="sc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="sc-val">24h</div><div class="sc-lbl">Total Time</div></div>
+        <div class="sc"><div class="sc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg></div><div class="sc-val">8.4k</div><div class="sc-lbl">Calories Burn</div></div>
+      </div>
+    </div>
+    <div class="sec fi d2">
+      <div class="sec-title" style="margin-bottom:12px">Aktivitas Minggu Ini</div>
+      <div class="cht">
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;height:110px;padding:0 4px">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1"><div style="width:22px;height:35px;background:var(--border);border-radius:5px"></div><span class="lbl">Sen</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1"><div style="width:22px;height:65px;background:var(--yellow);border-radius:5px"></div><span class="lbl">Sel</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1"><div style="width:22px;height:45px;background:var(--yellow);border-radius:5px;opacity:.7"></div><span class="lbl">Rab</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1"><div style="width:22px;height:25px;background:var(--border);border-radius:5px"></div><span class="lbl">Kam</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1"><div style="width:22px;height:85px;background:var(--yellow);border-radius:5px"></div><span class="lbl">Jum</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1"><div style="width:22px;height:55px;background:var(--yellow);border-radius:5px;opacity:.8"></div><span class="lbl">Sab</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1"><div style="width:22px;height:75px;background:var(--yellow);border-radius:5px"></div><span class="lbl" style="color:var(--ink);font-weight:600">Min</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="sec fi d3">
+      <div class="sec-title" style="margin-bottom:12px">Personal Best</div>
+      <div class="card" style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;align-items:center"><div><div class="lbl">Push-up (1 set)</div><div class="mono" style="font-size:20px;font-weight:600;margin-top:4px">25 reps</div></div><div class="sc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6.5 6.5l11 11M6.5 17.5l11-11M12 2v20"/></svg></div></div></div>
+      <div class="card" style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;align-items:center"><div><div class="lbl">Plank Hold</div><div class="mono" style="font-size:20px;font-weight:600;margin-top:4px">1:45 min</div></div><div class="sc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div></div></div>
+      <div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><div><div class="lbl">Longest Streak</div><div class="mono" style="font-size:20px;font-weight:600;margin-top:4px">14 hari</div></div><div class="sc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORY -->
+<div class="screen" id="s-history">
+  <div class="hdr fi"><h1>History</h1><div class="sub">Riwayat latihan</div></div>
+  <div style="padding:20px 0">
+    <div class="pills fi d1" style="padding:0 20px">
+      <div class="pill on">Semua</div>
+      <div class="pill">Minggu ini</div>
+      <div class="pill">Bulan ini</div>
+    </div>
+    <div class="sec fi d2">
+      <div class="tl-lbl">Hari Ini</div>
+      <div class="hi"><div class="hi-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6.5 6.5l11 11M6.5 17.5l11-11M12 2v20"/></svg></div><div class="hi-info"><div class="hi-ttl">Full Body A</div><div class="hi-meta">5 exercise · 28 min · 220 cal</div></div><div class="hi-date">09:30</div></div>
+      <div class="tl-lbl">Kemarin</div>
+      <div class="hi"><div class="hi-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/></svg></div><div class="hi-info"><div class="hi-ttl">Posture & Back</div><div class="hi-meta">4 exercise · 22 min · 150 cal</div></div><div class="hi-date">18:15</div></div>
+      <div class="hi"><div class="hi-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div><div class="hi-info"><div class="hi-ttl">Core & Flexibility</div><div class="hi-meta">6 exercise · 32 min · 260 cal</div></div><div class="hi-date">07:00</div></div>
+      <div class="tl-lbl">21 Juli 2026</div>
+      <div class="hi"><div class="hi-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6.5 6.5l11 11M6.5 17.5l11-11M12 2v20"/></svg></div><div class="hi-info"><div class="hi-ttl">Full Body B</div><div class="hi-meta">5 exercise · 30 min · 240 cal</div></div><div class="hi-date">10:00</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="screen" id="s-settings">
+  <div class="hdr fi"><h1>Settings</h1><div class="sub">Konfigurasi aplikasi</div></div>
+  <div style="padding:20px 0">
+    <div class="sec fi d1">
+      <div class="sec-title" style="margin-bottom:12px">Timer & Audio</div>
+      <div class="sg-grp">
+        <div class="sg-it"><span class="sg-lbl">Rest Timer</span><span class="sg-val">60 detik</span></div>
+        <div class="sg-it"><span class="sg-lbl">Suara Timer</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="sg-it"><span class="sg-lbl">Getaran</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="sg-it"><span class="sg-lbl">Countdown Voice</span><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+      </div>
+    </div>
+    <div class="sec fi d2">
+      <div class="sec-title" style="margin-bottom:12px">Tampilan</div>
+      <div class="sg-grp">
+        <div class="sg-it"><span class="sg-lbl">Dark Mode</span><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+        <div class="sg-it"><span class="sg-lbl">Animasi</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+      </div>
+    </div>
+    <div class="sec fi d3">
+      <div class="sec-title" style="margin-bottom:12px">Data</div>
+      <div class="sg-grp">
+        <div class="sg-it" style="cursor:pointer"><span class="sg-lbl">Export Data</span><span style="color:var(--muted-dark)">›</span></div>
+        <div class="sg-it" style="cursor:pointer"><span class="sg-lbl">Import Data</span><span style="color:var(--muted-dark)">›</span></div>
+        <div class="sg-it" style="cursor:pointer"><span class="sg-lbl" style="color:#c0392b">Hapus Semua Data</span><span style="color:var(--muted-dark)">›</span></div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:28px;color:var(--muted);font-size:12px" class="fi d4">
+      <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;color:var(--ink);margin-bottom:4px">Workout Personal</div>
+      <div class="mono" style="font-size:11px">Version 2.0</div>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-btn on" onclick="go('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</button>
+  <button class="nav-btn" onclick="go('progress')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Progress</button>
+  <button class="nav-btn" onclick="go('stats')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Stats</button>
+  <button class="nav-btn" onclick="go('history')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>History</button>
+  <button class="nav-btn" onclick="go('settings')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</button>
+</nav>
+
+</div>
+<script>
+function go(n){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s-'+n).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));
+  const m={home:0,progress:1,stats:2,history:3,settings:4,session:0};
+  document.querySelectorAll('.nav-btn')[m[n]].classList.add('on');
+  document.querySelectorAll('#s-'+n+' .fi').forEach(el=>{el.style.animation='none';el.offsetHeight;el.style.animation=''});
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>

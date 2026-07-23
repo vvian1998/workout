@@ -1,0 +1,807 @@
+/* ========================================
+   WORKOUT APP — DESIGN SYSTEM
+   Colors: ink, yellow, blue
+   Fonts: Space Grotesk, Work Sans, IBM Plex Mono
+   ======================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --ink: #14120F;
+  --yellow: #FFC72C;
+  --blue: #2F5EFF;
+  --bg: #FAFAF7;
+  --surface: #FFFFFF;
+  --border: #EBE9E2;
+  --muted: #B8B5AA;
+  --muted-dark: #8A8880;
+}
+
+body {
+  font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.mono {
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.label {
+  font-family: 'IBM Plex Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 11px;
+  color: var(--muted-dark);
+}
+
+/* ========================================
+   HEADER
+   ======================================== */
+
+header {
+  background: var(--ink);
+  color: var(--surface);
+  padding: 28px 20px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+header::after {
+  content: '';
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 140px;
+  height: 140px;
+  background: var(--yellow);
+  border-radius: 50%;
+  opacity: 0.08;
+}
+
+header h1 {
+  font-size: 28px;
+  margin-bottom: 4px;
+}
+
+header .subtitle {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* ========================================
+   NAVIGATION
+   ======================================== */
+
+#main-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 420px;
+  background: var(--surface);
+  border-top: 1.5px solid var(--border);
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0 14px;
+  z-index: 100;
+}
+
+.nav-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-family: 'Work Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 10px;
+  transition: color 0.2s;
+}
+
+.nav-btn svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2;
+}
+
+.nav-btn.active {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* ========================================
+   CARDS
+   ======================================== */
+
+.card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 12px;
+  transition: border-color 0.2s;
+}
+
+.card:active {
+  border-color: var(--ink);
+}
+
+/* ========================================
+   BUTTONS
+   ======================================== */
+
+.btn-primary {
+  background: var(--yellow);
+  color: var(--ink);
+  border: none;
+  padding: 16px 24px;
+  border-radius: 16px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  width: 100%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.15s;
+}
+
+.btn-primary:active {
+  transform: scale(0.97);
+}
+
+.btn-primary svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.5;
+}
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--ink);
+  border: 1.5px solid var(--border);
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.btn-secondary:active {
+  border-color: var(--ink);
+}
+
+/* ========================================
+   BADGES
+   ======================================== */
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.badge-low {
+  background: var(--ink);
+  color: var(--surface);
+}
+
+.badge-medium {
+  background: var(--yellow);
+  color: var(--ink);
+}
+
+.badge-high {
+  background: var(--blue);
+  color: var(--surface);
+}
+
+/* ========================================
+   STATS GRID
+   ======================================== */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 18px;
+  padding: 16px;
+}
+
+.stat-icon {
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid var(--ink);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.stat-icon svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.stat-value {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--muted-dark);
+}
+
+/* ========================================
+   SECTIONS
+   ======================================== */
+
+.section {
+  margin-bottom: 24px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.section-link {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--blue);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+}
+
+/* ========================================
+   STREAK CARD
+   ======================================== */
+
+.streak-card {
+  background: var(--yellow);
+  border: 1.5px solid var(--ink);
+  border-radius: 18px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.streak-icon {
+  width: 44px;
+  height: 44px;
+  border: 1.5px solid var(--ink);
+  border-radius: 12px;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.streak-icon svg {
+  width: 22px;
+  height: 22px;
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.streak-value {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.streak-label {
+  font-size: 12px;
+  color: var(--ink);
+  opacity: 0.75;
+  margin-top: 2px;
+}
+
+/* ========================================
+   WORKOUT CARD
+   ======================================== */
+
+.workout-card {
+  cursor: pointer;
+}
+
+.workout-icon {
+  width: 44px;
+  height: 44px;
+  border: 1.5px solid var(--ink);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.workout-icon svg {
+  width: 22px;
+  height: 22px;
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.workout-card h3 {
+  font-size: 17px;
+  margin-bottom: 4px;
+}
+
+.workout-card .desc {
+  font-size: 13px;
+  color: var(--muted-dark);
+  margin-bottom: 10px;
+}
+
+.workout-card .meta {
+  display: flex;
+  gap: 14px;
+  font-size: 12px;
+  color: var(--muted-dark);
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.workout-card .meta span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.workout-card .meta svg {
+  width: 13px;
+  height: 13px;
+  stroke-width: 2;
+}
+
+/* ========================================
+   CHART
+   ======================================== */
+
+.chart-container {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 20px;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.chart-value {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 26px;
+  font-weight: 600;
+}
+
+.chart-change {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--blue);
+  margin-top: 2px;
+}
+
+.chart-svg {
+  width: 100%;
+  height: 110px;
+  display: block;
+}
+
+.chart-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+
+/* ========================================
+   HISTORY
+   ======================================== */
+
+.history-item {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 18px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.history-icon {
+  width: 40px;
+  height: 40px;
+  border: 1.5px solid var(--ink);
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.history-icon svg {
+  width: 20px;
+  height: 20px;
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.history-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.history-title {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.history-meta {
+  font-size: 12px;
+  color: var(--muted-dark);
+}
+
+.history-date {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.timeline-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 18px 0 10px;
+}
+
+/* ========================================
+   SETTINGS
+   ======================================== */
+
+.settings-group {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.settings-item {
+  padding: 15px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-item:last-child {
+  border-bottom: none;
+}
+
+.settings-label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.settings-value {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  color: var(--muted-dark);
+}
+
+.toggle {
+  width: 44px;
+  height: 26px;
+  background: var(--border);
+  border-radius: 13px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.toggle.on {
+  background: var(--yellow);
+}
+
+.toggle::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: var(--surface);
+  border: 1.5px solid var(--ink);
+  border-radius: 50%;
+  top: 3px;
+  left: 3px;
+  transition: transform 0.3s;
+}
+
+.toggle.on::after {
+  transform: translateX(18px);
+}
+
+/* ========================================
+   SESSION SCREEN
+   ======================================== */
+
+.session-screen {
+  padding: 20px;
+}
+
+.session-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.session-exercise {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.session-exercise h2 {
+  font-size: 22px;
+  margin-bottom: 6px;
+}
+
+.session-info {
+  font-size: 13px;
+  color: var(--muted-dark);
+}
+
+.timer-container {
+  display: flex;
+  justify-content: center;
+  margin: 16px 0 32px;
+}
+
+.timer-ring {
+  width: 220px;
+  height: 220px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timer-ring svg {
+  position: absolute;
+  transform: rotate(-90deg);
+}
+
+.timer-ring circle {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.timer-bg {
+  stroke: var(--border);
+  stroke-width: 6;
+}
+
+.timer-progress {
+  stroke: var(--yellow);
+  stroke-width: 6;
+  stroke-dasharray: 628;
+  stroke-dashoffset: 157;
+}
+
+.timer-display {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 48px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.timer-label {
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted-dark);
+  margin-top: -20px;
+  margin-bottom: 28px;
+}
+
+.rep-counter {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 28px;
+}
+
+.rep-current {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 56px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.rep-total {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 22px;
+  color: var(--muted);
+}
+
+.progress-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 22px;
+}
+
+.progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+}
+
+.progress-dot.completed {
+  background: var(--ink);
+}
+
+.progress-dot.current {
+  background: var(--yellow);
+  width: 22px;
+  border-radius: 4px;
+}
+
+.session-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.session-actions .btn-primary {
+  flex: 2;
+}
+
+.session-actions .btn-secondary {
+  flex: 1;
+}
+
+/* ========================================
+   FILTER PILLS
+   ======================================== */
+
+.filter-pills {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+  overflow-x: auto;
+}
+
+.pill {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  padding: 7px 14px;
+  border-radius: 11px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.pill.active {
+  background: var(--ink);
+  color: var(--surface);
+  border-color: var(--ink);
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeUp 0.4s ease-out both;
+}
+
+.delay-1 { animation-delay: 0.05s; }
+.delay-2 { animation-delay: 0.1s; }
+.delay-3 { animation-delay: 0.15s; }
+.delay-4 { animation-delay: 0.2s; }
+.delay-5 { animation-delay: 0.25s; }
+
+/* ========================================
+   UTILITIES
+   ======================================== */
+
+.pad {
+  padding: 0 20px;
+}
+
+#main {
+  padding: 20px;
+  padding-bottom: 100px;
+}
+
+/* ========================================
+   SCREEN NAVIGATION (CRITICAL - MISSING!)
+   ======================================== */
+
+.screen {
+  display: none;
+}
+
+.screen.active {
+  display: block;
+  animation: fadeUp 0.3s ease-out;
+}
+
+/* Hide all screens except active one */
+#main > .screen:not(.active) {
+  display: none;
+}
