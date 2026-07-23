@@ -232,6 +232,18 @@ const Timer = (function() {
     }
   };
 
+  // Extend a running (or paused) countdown by N seconds. Also stretches
+  // totalSeconds by the same amount so the progress ring stays meaningful
+  // instead of jumping backwards.
+  const addTime = function(seconds) {
+    if (!isRunning && !isPaused) return;
+    remainingSeconds += seconds;
+    totalSeconds += seconds;
+    if (onTickCallback) {
+      onTickCallback(remainingSeconds, totalSeconds);
+    }
+  };
+
   const getRemaining = function() {
     return remainingSeconds;
   };
@@ -260,6 +272,7 @@ const Timer = (function() {
     resume: resume,
     stop: stop,
     reset: reset,
+    addTime: addTime,
     getRemaining: getRemaining,
     getTotal: getTotal,
     isActive: isActive,

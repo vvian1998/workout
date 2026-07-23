@@ -806,6 +806,47 @@ header .subtitle {
 .delay-5 { animation-delay: 0.25s; }
 
 /* ========================================
+   REVIEW SCREEN
+   ======================================== */
+
+.review-exercise-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+.review-exercise-item:last-child {
+  border-bottom: none;
+}
+
+.review-exercise-name {
+  font-weight: 600;
+}
+
+.review-exercise-meta {
+  font-size: 13px;
+  color: #888;
+  text-align: right;
+}
+
+/* ========================================
+   CONGRATS / DIFFICULTY BUTTONS
+   ======================================== */
+
+.difficulty-btn.selected {
+  background: #FFD54A;
+  border-color: #FFD54A;
+  font-weight: 700;
+}
+
+#add-time-btn:disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* ========================================
    UTILITIES
    ======================================== */
 
@@ -998,6 +1039,56 @@ header .subtitle {
         <div class="session-actions">
           <button class="btn-secondary" id="pause-timer-btn">Pause</button>
           <button class="btn-secondary" id="skip-exercise-btn">Skip</button>
+          <button class="btn-secondary" id="add-time-btn">+15s</button>
+        </div>
+      </div>
+
+      <!-- REVIEW SCREEN (shown before a workout session starts) -->
+      <div id="review-screen" class="screen">
+        <div class="session-top">
+          <button class="btn-secondary" id="review-back-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 16px; height: 16px; stroke-width: 2;">
+              <line x1="19" y1="12" x2="5" y2="12"/>
+              <polyline points="12 19 5 12 12 5"/>
+            </svg>
+            Kembali
+          </button>
+        </div>
+
+        <div class="section fade-in">
+          <div class="section-title" id="review-workout-name" style="font-size: 22px; margin-bottom: 4px;">Workout</div>
+          <div class="desc" id="review-workout-meta" style="margin-bottom: 18px;">0 exercise • 0 menit</div>
+          <div id="review-exercise-list"></div>
+        </div>
+
+        <button class="btn-primary" id="start-session-btn">Mulai Sesi</button>
+      </div>
+
+      <!-- CONGRATS SCREEN (shown after a workout session finishes) -->
+      <div id="congrats-screen" class="screen">
+        <div class="section fade-in" style="text-align: center; padding-top: 40px;">
+          <div style="font-size: 56px; margin-bottom: 8px;">🎉</div>
+          <div class="section-title" style="font-size: 24px; margin-bottom: 24px;">Workout Selesai!</div>
+
+          <div class="stats-row" style="display: flex; justify-content: center; gap: 32px; margin-bottom: 32px;">
+            <div>
+              <div class="chart-value" id="congrats-duration">0:00</div>
+              <div class="chart-change" style="color: var(--muted, #888);">Durasi</div>
+            </div>
+            <div>
+              <div class="chart-value" id="congrats-calories">0 kcal</div>
+              <div class="chart-change" style="color: var(--muted, #888);">Estimasi Kalori</div>
+            </div>
+          </div>
+
+          <div class="desc" style="margin-bottom: 12px;">Gimana rasanya latihan ini?</div>
+          <div class="session-actions" style="justify-content: center; margin-bottom: 20px;">
+            <button class="btn-secondary difficulty-btn" data-difficulty="easy">😌 Mudah</button>
+            <button class="btn-secondary difficulty-btn" data-difficulty="medium">👍 Pas</button>
+            <button class="btn-secondary difficulty-btn" data-difficulty="hard">🥵 Berat</button>
+          </div>
+
+          <button class="btn-primary" id="congrats-done-btn">Selesai</button>
         </div>
       </div>
 

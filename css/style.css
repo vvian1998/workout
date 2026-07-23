@@ -792,6 +792,47 @@ header .subtitle {
 .delay-5 { animation-delay: 0.25s; }
 
 /* ========================================
+   REVIEW SCREEN
+   ======================================== */
+
+.review-exercise-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+.review-exercise-item:last-child {
+  border-bottom: none;
+}
+
+.review-exercise-name {
+  font-weight: 600;
+}
+
+.review-exercise-meta {
+  font-size: 13px;
+  color: #888;
+  text-align: right;
+}
+
+/* ========================================
+   CONGRATS / DIFFICULTY BUTTONS
+   ======================================== */
+
+.difficulty-btn.selected {
+  background: #FFD54A;
+  border-color: #FFD54A;
+  font-weight: 700;
+}
+
+#add-time-btn:disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* ========================================
    UTILITIES
    ======================================== */
 

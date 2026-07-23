@@ -95,9 +95,9 @@ const Session = (function() {
     currentSession.isComplete = true;
     currentSession.endTime = new Date().toISOString();
 
-    const duration = Math.round(
-      (new Date(currentSession.endTime) - new Date(currentSession.startTime)) / 60000
-    );
+    const durationMs = new Date(currentSession.endTime) - new Date(currentSession.startTime);
+    const duration = Math.round(durationMs / 60000);
+    const durationSeconds = Math.round(durationMs / 1000);
 
     const historyEntry = {
       id: Date.now(),
@@ -105,6 +105,9 @@ const Session = (function() {
       workoutName: currentSession.workoutName,
       date: currentSession.startTime,
       duration: duration,
+      durationSeconds: durationSeconds,
+      caloriesBurned: null,
+      difficultyRating: null,
       exercises: currentSession.exercises.map(ex => ({
         name: ex.name,
         sets: ex.sets,
@@ -152,6 +155,18 @@ const Session = (function() {
     };
   };
 
+  // Merge fields into the most recently saved history entry. Used by the
+  // app UI to backfill caloriesBurned (computed after completion) and
+  // difficultyRating (chosen by the user on the congrats screen).
+  const updateLastHistoryEntry = function(fields) {
+    const history = Storage.get(HISTORY_KEY) || [];
+    if (history.length === 0) return false;
+    const last = history[history.length - 1];
+    Object.assign(last, fields);
+    Storage.set(HISTORY_KEY, history);
+    return true;
+  };
+
   return {
     init: init,
     start: start,
@@ -161,7 +176,8 @@ const Session = (function() {
     skipExercise: skipExercise,
     completeWorkout: completeWorkout,
     clearSession: clearSession,
-    getProgress: getProgress
+    getProgress: getProgress,
+    updateLastHistoryEntry: updateLastHistoryEntry
   };
 })();
 

@@ -66,6 +66,52 @@ const App = (function() {
     if (skipBtn) {
       skipBtn.addEventListener('click', handleSkip);
     }
+
+    const addTimeBtn = document.getElementById('add-time-btn');
+    if (addTimeBtn) {
+      addTimeBtn.addEventListener('click', handleAddTime);
+    }
+
+    const reviewBackBtn = document.getElementById('review-back-btn');
+    if (reviewBackBtn) {
+      reviewBackBtn.addEventListener('click', () => showScreen('home'));
+    }
+
+    const startSessionBtn = document.getElementById('start-session-btn');
+    if (startSessionBtn) {
+      startSessionBtn.addEventListener('click', () => {
+        if (pendingWorkoutId !== null) {
+          startWorkout(pendingWorkoutId);
+        }
+      });
+    }
+
+    document.querySelectorAll('.difficulty-btn').forEach(btn => {
+      btn.addEventListener('click', () => handleDifficultySelect(btn.dataset.difficulty));
+    });
+
+    const congratsDoneBtn = document.getElementById('congrats-done-btn');
+    if (congratsDoneBtn) {
+      congratsDoneBtn.addEventListener('click', () => {
+        showScreen('home');
+        renderHome();
+      });
+    }
+  };
+
+  // Max 2 taps of "+15s" per rest period, to avoid rest dragging on forever.
+  const MAX_ADD_TIME_TAPS = 2;
+  const ADD_TIME_SECONDS = 15;
+  let addTimeTapsUsed = 0;
+
+  const handleAddTime = function() {
+    if (addTimeTapsUsed >= MAX_ADD_TIME_TAPS) return;
+    Timer.addTime(ADD_TIME_SECONDS);
+    addTimeTapsUsed++;
+    const addTimeBtn = document.getElementById('add-time-btn');
+    if (addTimeBtn && addTimeTapsUsed >= MAX_ADD_TIME_TAPS) {
+      addTimeBtn.disabled = true;
+    }
   };
 
   const handlePauseToggle = function() {
@@ -81,6 +127,44 @@ const App = (function() {
     }
   };
 
+  // ---------- CONGRATS / WORKOUT COMPLETION ----------
+  const MET_BODYWEIGHT_TRAINING = 6; // rough MET value for moderate calisthenics
+  const DEFAULT_WEIGHT_KG = 65; // fallback if the user never logged a weight
+
+  const estimateCalories = function(durationSeconds) {
+    const weightLog = (typeof Progress !== 'undefined') ? Progress.getLatestWeight() : null;
+    const weightKg = weightLog && weightLog.weight ? weightLog.weight : DEFAULT_WEIGHT_KG;
+    const durationHours = durationSeconds / 3600;
+    return Math.round(MET_BODYWEIGHT_TRAINING * weightKg * durationHours);
+  };
+
+  const finishWorkoutFlow = function() {
+    Timer.stop();
+
+    const history = Storage.get('workoutHistory') || [];
+    const last = history[history.length - 1];
+    const durationSeconds = last ? (last.durationSeconds || 0) : 0;
+    const calories = estimateCalories(durationSeconds);
+
+    Session.updateLastHistoryEntry({ caloriesBurned: calories });
+
+    const durationEl = document.getElementById('congrats-duration');
+    const caloriesEl = document.getElementById('congrats-calories');
+    if (durationEl) durationEl.textContent = formatTime(durationSeconds);
+    if (caloriesEl) caloriesEl.textContent = calories + ' kcal';
+
+    document.querySelectorAll('.difficulty-btn').forEach(btn => btn.classList.remove('selected'));
+
+    showScreen('congrats');
+  };
+
+  const handleDifficultySelect = function(difficulty) {
+    Session.updateLastHistoryEntry({ difficultyRating: difficulty });
+    document.querySelectorAll('.difficulty-btn').forEach(btn => {
+      btn.classList.toggle('selected', btn.dataset.difficulty === difficulty);
+    });
+  };
+
   const handleSkip = function() {
     Timer.stop();
     const pauseBtn = document.getElementById('pause-timer-btn');
@@ -90,9 +174,7 @@ const App = (function() {
 
     const session = Session.getCurrent();
     if (!session) {
-      alert('Workout selesai! Kerja bagus 💪');
-      showScreen('home');
-      renderHome();
+      finishWorkoutFlow();
       return;
     }
 
@@ -134,7 +216,7 @@ const App = (function() {
           <span>${svg(ICONS.clock)} ${w.estimatedTime} min</span>
         </div>
       `;
-      card.addEventListener('click', () => startWorkout(w.id));
+      card.addEventListener('click', () => showReviewScreen(w.id));
       list.appendChild(card);
     });
 
@@ -142,8 +224,40 @@ const App = (function() {
     if (startBtn) {
       startBtn.onclick = () => {
         const first = workouts[0];
-        if (first) startWorkout(first.id);
+        if (first) showReviewScreen(first.id);
       };
+    }
+  };
+
+  // ---------- REVIEW (shown before a session actually starts) ----------
+  let pendingWorkoutId = null;
+
+  const showReviewScreen = function(workoutId) {
+    pendingWorkoutId = workoutId;
+    renderReviewScreen(workoutId);
+    showScreen('review');
+  };
+
+  const renderReviewScreen = function(workoutId) {
+    const workout = Workout.getById(workoutId);
+    if (!workout) return;
+
+    const nameEl = document.getElementById('review-workout-name');
+    const metaEl = document.getElementById('review-workout-meta');
+    const listEl = document.getElementById('review-exercise-list');
+    if (nameEl) nameEl.textContent = workout.name;
+    if (metaEl) metaEl.textContent = workout.exercises.length + ' exercise • ~' + workout.estimatedTime + ' menit';
+
+    if (listEl) {
+      listEl.innerHTML = '';
+      workout.exercises.forEach(ex => {
+        const item = document.createElement('div');
+        item.className = 'review-exercise-item';
+        item.innerHTML =
+          '<div class="review-exercise-name">' + ex.name + '</div>' +
+          '<div class="review-exercise-meta">' + ex.sets + ' set x ' + ex.reps + '<br>' + ex.rest + 's rest</div>';
+        listEl.appendChild(item);
+      });
     }
   };
 
@@ -218,9 +332,7 @@ const App = (function() {
 
     const session = Session.getCurrent();
     if (!session) {
-      alert('Workout selesai! Kerja bagus 💪');
-      showScreen('home');
-      renderHome();
+      finishWorkoutFlow();
       return;
     }
 
@@ -235,9 +347,14 @@ const App = (function() {
     const timerLabel = document.querySelector('.timer-label');
     const ring = document.querySelector('.timer-progress');
     const pauseBtn = document.getElementById('pause-timer-btn');
+    const addTimeBtn = document.getElementById('add-time-btn');
 
     if (pauseBtn) pauseBtn.textContent = 'Pause';
     if (timerLabel) timerLabel.textContent = 'Sisa waktu istirahat';
+
+    // Fresh rest period -> fresh allowance of "+15s" taps.
+    addTimeTapsUsed = 0;
+    if (addTimeBtn) addTimeBtn.disabled = false;
 
     Timer.start(seconds, function(remaining, total) {
       if (timerDisplay) timerDisplay.textContent = formatTime(remaining);
