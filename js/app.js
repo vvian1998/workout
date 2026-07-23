@@ -105,6 +105,7 @@ const App = (function() {
   let addTimeTapsUsed = 0;
 
   const handleAddTime = function() {
+    if (sessionPhase !== 'rest') return; // "+15s" only ever applies to rest
     if (addTimeTapsUsed >= MAX_ADD_TIME_TAPS) return;
     Timer.addTime(ADD_TIME_SECONDS);
     addTimeTapsUsed++;
@@ -170,6 +171,14 @@ const App = (function() {
     const pauseBtn = document.getElementById('pause-timer-btn');
     if (pauseBtn) pauseBtn.textContent = 'Pause';
 
+    if (sessionPhase === 'rest') {
+      // Skip straight past whatever rest is left into the next exercise/set.
+      enterExercisePhase();
+      return;
+    }
+
+    // Skipping mid-exercise skips all remaining sets of it and moves on
+    // without an intervening rest (the user chose to move on, not to rest).
     Session.skipExercise();
 
     const session = Session.getCurrent();
@@ -178,7 +187,7 @@ const App = (function() {
       return;
     }
 
-    renderSession();
+    enterExercisePhase();
   };
 
   // ---------- HOME ----------
@@ -262,24 +271,56 @@ const App = (function() {
   };
 
   // ---------- SESSION ----------
+  // A set has two phases: the exercise itself, then (if it has rest > 0) the
+  // rest period that follows it. Kept as an explicit phase so it's always
+  // clear what the timer is currently counting, and so "+15s" only ever
+  // shows up where it's meant to — during rest.
+  let sessionPhase = 'exercise';
+
+  // Ring circumference from the SVG (r=100 -> 2*PI*100 ≈ 628)
+  const RING_CIRCUMFERENCE = 628;
+
+  const formatTime = function(seconds) {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return m + ':' + String(s).padStart(2, '0');
+  };
+
+  // Reads a target duration (in seconds) out of a reps string like
+  // "30-45 detik", "20 detik" or "2 menit". Returns null for rep-count
+  // exercises (15, "10-12", "12 per sisi", ...) — those have no timer of
+  // their own and are finished manually with the "Selesai Set" button.
+  const parseExerciseDurationSeconds = function(reps) {
+    if (typeof reps !== 'string') return null;
+    const lower = reps.toLowerCase();
+    if (lower.indexOf('detik') === -1 && lower.indexOf('menit') === -1) return null;
+    const numbers = (lower.match(/\d+(\.\d+)?/g) || []).map(Number);
+    if (numbers.length === 0) return null;
+    const maxNum = Math.max.apply(null, numbers);
+    return Math.round(lower.indexOf('menit') !== -1 ? maxNum * 60 : maxNum);
+  };
+
   const startWorkout = function(workoutId) {
     Session.start(workoutId);
     showScreen('session');
-    renderSession();
+    enterExercisePhase();
   };
 
-  const renderSession = function() {
+  // ----- EXERCISE PHASE -----
+  const enterExercisePhase = function() {
     const session = Session.getCurrent();
     if (!session) {
       showScreen('home');
       return;
     }
+    sessionPhase = 'exercise';
+
     const exercise = Session.getCurrentExercise();
     const progress = Session.getProgress();
 
     document.querySelector('#session-screen .session-exercise h2').textContent = exercise.name;
     document.querySelector('.session-info').textContent =
-      'Set ' + session.currentSet + ' dari ' + exercise.sets + ' • ' + exercise.rest + 's rest';
+      'Set ' + session.currentSet + ' dari ' + exercise.sets;
     document.querySelector('.label').textContent = 'Exercise ' + progress.currentExercise + '/' + progress.totalExercises;
 
     const dots = document.querySelectorAll('.progress-dot');
@@ -289,8 +330,8 @@ const App = (function() {
       else if (i === session.currentExerciseIndex) dot.classList.add('current');
     });
 
-    // Static target display — no more tap-to-count. The number shown is just
-    // the exercise's target (reps or duration), nothing to increment.
+    // Static target display — the number shown is just the exercise's
+    // target (reps or duration), nothing to increment.
     const repCurrent = document.querySelector('.rep-current');
     const repTotal = document.querySelector('.rep-total');
     if (repCurrent) repCurrent.textContent = exercise.reps;
@@ -299,36 +340,67 @@ const App = (function() {
     const pauseBtn = document.getElementById('pause-timer-btn');
     if (pauseBtn) pauseBtn.textContent = 'Pause';
 
-    // Timer starts running immediately as soon as this exercise/set is shown —
-    // no need to tap "Selesai Set" first.
-    const restSeconds = parseInt(exercise.rest) || 0;
-    if (restSeconds > 0) {
-      startRestTimer(restSeconds);
+    const skipBtn = document.getElementById('skip-exercise-btn');
+    if (skipBtn) skipBtn.textContent = 'Skip';
+
+    // "+15s" only ever applies to rest — hidden for the exercise itself.
+    const addTimeBtn = document.getElementById('add-time-btn');
+    if (addTimeBtn) addTimeBtn.classList.add('hidden');
+
+    const completeBtn = document.getElementById('complete-set-btn');
+    const completeLabel = document.getElementById('complete-set-label');
+    if (completeBtn) completeBtn.classList.remove('hidden');
+
+    const timerDisplay = document.querySelector('.timer-display');
+    const timerLabel = document.querySelector('.timer-label');
+    const ring = document.querySelector('.timer-progress');
+
+    const durationSeconds = parseExerciseDurationSeconds(exercise.reps);
+
+    if (durationSeconds) {
+      // Timed exercise (e.g. Plank, "30-45 detik"): runs its own countdown
+      // with sound, and auto-advances to rest the moment it hits zero.
+      if (completeLabel) completeLabel.textContent = 'Selesai Lebih Awal';
+      if (timerLabel) timerLabel.textContent = 'Latihan berjalan';
+      Timer.start(durationSeconds, function(remaining, total) {
+        if (timerDisplay) timerDisplay.textContent = formatTime(remaining);
+        if (ring && total > 0) {
+          const progress = (total - remaining) / total; // 0 -> 1
+          ring.style.strokeDashoffset = RING_CIRCUMFERENCE * progress;
+        }
+      }, function() {
+        advanceAfterExercise(exercise);
+      });
     } else {
+      // Rep-count exercise: nothing to count down, so the timer stays put
+      // and the set is finished manually.
       Timer.stop();
-      const timerDisplay = document.querySelector('.timer-display');
-      const timerLabel = document.querySelector('.timer-label');
-      const ring = document.querySelector('.timer-progress');
-      if (timerDisplay) timerDisplay.textContent = '0:00';
-      if (timerLabel) timerLabel.textContent = 'Tanpa istirahat';
-      if (ring) ring.style.strokeDashoffset = 0;
+      if (completeLabel) completeLabel.textContent = 'Selesai Set';
+      if (timerDisplay) timerDisplay.textContent = '--:--';
+      if (timerLabel) timerLabel.textContent = 'Selesaikan set ini, lalu tekan tombol';
+      if (ring) ring.style.strokeDashoffset = RING_CIRCUMFERENCE;
     }
   };
 
-  const formatTime = function(seconds) {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return m + ':' + String(s).padStart(2, '0');
-  };
-
   const handleCompleteSet = function() {
-    // Static/one-tap: no more manual rep-by-rep counting. Tapping "Selesai Set"
-    // immediately commits the set at its target reps. renderSession() (called
-    // below) auto-starts the next timer, so nothing else to do here.
+    if (sessionPhase === 'rest') return; // nothing to "complete" while resting
+
     const exercise = Session.getCurrentExercise();
     if (!exercise) return;
 
-    Session.completeSet(exercise.reps);
+    advanceAfterExercise(exercise);
+  };
+
+  // Commits the set that was just finished (whether the exercise timer ran
+  // out or the person tapped the button), then either starts the rest that
+  // belongs to that exercise or, if there's none, moves straight to the
+  // next exercise. If that was the last set of the workout, Session already
+  // closed itself out, so we go to the congrats screen instead.
+  const advanceAfterExercise = function(finishedExercise) {
+    Timer.stop();
+    const restSeconds = parseInt(finishedExercise.rest, 10) || 0;
+
+    Session.completeSet(finishedExercise.reps);
 
     const session = Session.getCurrent();
     if (!session) {
@@ -336,25 +408,37 @@ const App = (function() {
       return;
     }
 
-    renderSession();
+    if (restSeconds > 0) {
+      enterRestPhase(restSeconds);
+    } else {
+      enterExercisePhase();
+    }
   };
 
-  // Ring circumference from the SVG (r=100 -> 2*PI*100 ≈ 628)
-  const RING_CIRCUMFERENCE = 628;
+  // ----- REST PHASE -----
+  const enterRestPhase = function(seconds) {
+    sessionPhase = 'rest';
 
-  const startRestTimer = function(seconds) {
-    const timerDisplay = document.querySelector('.timer-display');
-    const timerLabel = document.querySelector('.timer-label');
-    const ring = document.querySelector('.timer-progress');
     const pauseBtn = document.getElementById('pause-timer-btn');
+    const skipBtn = document.getElementById('skip-exercise-btn');
     const addTimeBtn = document.getElementById('add-time-btn');
+    const completeBtn = document.getElementById('complete-set-btn');
+    const timerLabel = document.querySelector('.timer-label');
 
     if (pauseBtn) pauseBtn.textContent = 'Pause';
+    if (skipBtn) skipBtn.textContent = 'Lewati Istirahat';
+    if (completeBtn) completeBtn.classList.add('hidden'); // nothing to complete during rest
     if (timerLabel) timerLabel.textContent = 'Sisa waktu istirahat';
 
     // Fresh rest period -> fresh allowance of "+15s" taps.
     addTimeTapsUsed = 0;
-    if (addTimeBtn) addTimeBtn.disabled = false;
+    if (addTimeBtn) {
+      addTimeBtn.classList.remove('hidden');
+      addTimeBtn.disabled = false;
+    }
+
+    const timerDisplay = document.querySelector('.timer-display');
+    const ring = document.querySelector('.timer-progress');
 
     Timer.start(seconds, function(remaining, total) {
       if (timerDisplay) timerDisplay.textContent = formatTime(remaining);
@@ -363,9 +447,8 @@ const App = (function() {
         ring.style.strokeDashoffset = RING_CIRCUMFERENCE * progress;
       }
     }, function() {
-      if (timerDisplay) timerDisplay.textContent = '0:00';
-      if (timerLabel) timerLabel.textContent = 'Istirahat selesai — lanjut!';
-      if (ring) ring.style.strokeDashoffset = RING_CIRCUMFERENCE;
+      // Rest is over — auto-advance into the next exercise/set.
+      enterExercisePhase();
     });
   };
 

@@ -832,6 +832,10 @@ header .subtitle {
   pointer-events: none;
 }
 
+.hidden {
+  display: none !important;
+}
+
 /* ========================================
    UTILITIES
    ======================================== */
