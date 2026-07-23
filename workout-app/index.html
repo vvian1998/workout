@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workout Personal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+/* ========================================
+   WORKOUT APP — DESIGN SYSTEM
+   Colors: ink, yellow, blue
+   Fonts: Space Grotesk, Work Sans, IBM Plex Mono
+   ======================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --ink: #14120F;
+  --yellow: #FFC72C;
+  --blue: #2F5EFF;
+  --bg: #FAFAF7;
+  --surface: #FFFFFF;
+  --border: #EBE9E2;
+  --muted: #B8B5AA;
+  --muted-dark: #8A8880;
+}
+
+body {
+  font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.mono {
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.label {
+  font-family: 'IBM Plex Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 11px;
+  color: var(--muted-dark);
+}
+
+/* ========================================
+   HEADER
+   ======================================== */
+
+header {
+  background: var(--ink);
+  color: var(--surface);
+  padding: 28px 20px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+header::after {
+  content: '';
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 140px;
+  height: 140px;
+  background: var(--yellow);
+  border-radius: 50%;
+  opacity: 0.08;
+}
+
+header h1 {
+  font-size: 28px;
+  margin-bottom: 4px;
+}
+
+header .subtitle {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* ========================================
+   NAVIGATION
+   ======================================== */
+
+#main-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 420px;
+  background: var(--surface);
+  border-top: 1.5px solid var(--border);
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0 14px;
+  z-index: 100;
+}
+
+.nav-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-family: 'Work Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 10px;
+  transition: color 0.2s;
+}
+
+.nav-btn svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2;
+}
+
+.nav-btn.active {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* ========================================
+   CARDS
+   ======================================== */
+
+.card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 12px;
+  transition: border-color 0.2s;
+}
+
+.card:active {
+  border-color: var(--ink);
+}
+
+/* ========================================
+   BUTTONS
+   ======================================== */
+
+.btn-primary {
+  background: var(--yellow);
+  color: var(--ink);
+  border: none;
+  padding: 16px 24px;
+  border-radius: 16px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  width: 100%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.15s;
+}
+
+.btn-primary:active {
+  transform: scale(0.97);
+}
+
+.btn-primary svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.5;
+}
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--ink);
+  border: 1.5px solid var(--border);
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.btn-secondary:active {
+  border-color: var(--ink);
+}
+
+/* ========================================
+   BADGES
+   ======================================== */
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.badge-low {
+  background: var(--ink);
+  color: var(--surface);
+}
+
+.badge-medium {
+  background: var(--yellow);
+  color: var(--ink);
+}
+
+.badge-high {
+  background: var(--blue);
+  color: var(--surface);
+}
+
+/* ========================================
+   STATS GRID
+   ======================================== */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 18px;
+  padding: 16px;
+}
+
+.stat-icon {
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid var(--ink);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.stat-icon svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.stat-value {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--muted-dark);
+}
+
+/* ========================================
+   SECTIONS
+   ======================================== */
+
+.section {
+  margin-bottom: 24px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.section-link {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--blue);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+}
+
+/* ========================================
+   STREAK CARD
+   ======================================== */
+
+.streak-card {
+  background: var(--yellow);
+  border: 1.5px solid var(--ink);
+  border-radius: 18px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.streak-icon {
+  width: 44px;
+  height: 44px;
+  border: 1.5px solid var(--ink);
+  border-radius: 12px;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.streak-icon svg {
+  width: 22px;
+  height: 22px;
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.streak-value {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.streak-label {
+  font-size: 12px;
+  color: var(--ink);
+  opacity: 0.75;
+  margin-top: 2px;
+}
+
+/* ========================================
+   WORKOUT CARD
+   ======================================== */
+
+.workout-card {
+  cursor: pointer;
+}
+
+.workout-icon {
+  width: 44px;
+  height: 44px;
+  border: 1.5px solid var(--ink);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.workout-icon svg {
+  width: 22px;
+  height: 22px;
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.workout-card h3 {
+  font-size: 17px;
+  margin-bottom: 4px;
+}
+
+.workout-card .desc {
+  font-size: 13px;
+  color: var(--muted-dark);
+  margin-bottom: 10px;
+}
+
+.workout-card .meta {
+  display: flex;
+  gap: 14px;
+  font-size: 12px;
+  color: var(--muted-dark);
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.workout-card .meta span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.workout-card .meta svg {
+  width: 13px;
+  height: 13px;
+  stroke-width: 2;
+}
+
+/* ========================================
+   CHART
+   ======================================== */
+
+.chart-container {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 20px;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.chart-value {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 26px;
+  font-weight: 600;
+}
+
+.chart-change {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--blue);
+  margin-top: 2px;
+}
+
+.chart-svg {
+  width: 100%;
+  height: 110px;
+  display: block;
+}
+
+.chart-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+
+/* ========================================
+   HISTORY
+   ======================================== */
+
+.history-item {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 18px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.history-icon {
+  width: 40px;
+  height: 40px;
+  border: 1.5px solid var(--ink);
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.history-icon svg {
+  width: 20px;
+  height: 20px;
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.history-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.history-title {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.history-meta {
+  font-size: 12px;
+  color: var(--muted-dark);
+}
+
+.history-date {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.timeline-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 18px 0 10px;
+}
+
+/* ========================================
+   SETTINGS
+   ======================================== */
+
+.settings-group {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.settings-item {
+  padding: 15px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-item:last-child {
+  border-bottom: none;
+}
+
+.settings-label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.settings-value {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  color: var(--muted-dark);
+}
+
+.toggle {
+  width: 44px;
+  height: 26px;
+  background: var(--border);
+  border-radius: 13px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.toggle.on {
+  background: var(--yellow);
+}
+
+.toggle::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: var(--surface);
+  border: 1.5px solid var(--ink);
+  border-radius: 50%;
+  top: 3px;
+  left: 3px;
+  transition: transform 0.3s;
+}
+
+.toggle.on::after {
+  transform: translateX(18px);
+}
+
+/* ========================================
+   SCREEN SWITCHING
+   ======================================== */
+
+.screen {
+  display: none;
+}
+
+.screen.active {
+  display: block;
+}
+
+/* ========================================
+   SESSION SCREEN
+   ======================================== */
+
+.session-screen {
+  padding: 20px;
+}
+
+.session-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.session-exercise {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.session-exercise h2 {
+  font-size: 22px;
+  margin-bottom: 6px;
+}
+
+.session-info {
+  font-size: 13px;
+  color: var(--muted-dark);
+}
+
+.timer-container {
+  display: flex;
+  justify-content: center;
+  margin: 16px 0 32px;
+}
+
+.timer-ring {
+  width: 220px;
+  height: 220px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timer-ring svg {
+  position: absolute;
+  transform: rotate(-90deg);
+}
+
+.timer-ring circle {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.timer-bg {
+  stroke: var(--border);
+  stroke-width: 6;
+}
+
+.timer-progress {
+  stroke: var(--yellow);
+  stroke-width: 6;
+  stroke-dasharray: 628;
+  stroke-dashoffset: 157;
+}
+
+.timer-display {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 48px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.timer-label {
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted-dark);
+  margin-top: -20px;
+  margin-bottom: 28px;
+}
+
+.rep-counter {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+  margin-bottom: 28px;
+}
+
+.rep-current {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 56px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.rep-total {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted-dark);
+}
+
+.progress-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 22px;
+}
+
+.progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+}
+
+.progress-dot.completed {
+  background: var(--ink);
+}
+
+.progress-dot.current {
+  background: var(--yellow);
+  width: 22px;
+  border-radius: 4px;
+}
+
+.session-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.session-actions .btn-primary {
+  flex: 2;
+}
+
+.session-actions .btn-secondary {
+  flex: 1;
+}
+
+/* ========================================
+   FILTER PILLS
+   ======================================== */
+
+.filter-pills {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+  overflow-x: auto;
+}
+
+.pill {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  padding: 7px 14px;
+  border-radius: 11px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.pill.active {
+  background: var(--ink);
+  color: var(--surface);
+  border-color: var(--ink);
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeUp 0.4s ease-out both;
+}
+
+.delay-1 { animation-delay: 0.05s; }
+.delay-2 { animation-delay: 0.1s; }
+.delay-3 { animation-delay: 0.15s; }
+.delay-4 { animation-delay: 0.2s; }
+.delay-5 { animation-delay: 0.25s; }
+
+/* ========================================
+   UTILITIES
+   ======================================== */
+
+.pad {
+  padding: 0 20px;
+}
+
+#main {
+  padding: 20px;
+  padding-bottom: 100px;
+}
+
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>Workout</h1>
+      <div class="subtitle">Senin, 23 Juli 2026</div>
+    </header>
+
+    <main id="main">
+      <!-- HOME SCREEN -->
+      <div id="home-screen" class="screen active">
+        <div class="streak-card fade-in">
+          <div class="streak-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="streak-value">7</div>
+            <div class="streak-label">Hari streak aktif</div>
+          </div>
+        </div>
+
+        <div class="section fade-in delay-1">
+          <div class="section-header">
+            <div class="section-title">Workout Hari Ini</div>
+            <div class="section-link">Lihat Semua</div>
+          </div>
+
+          <div class="card workout-card" data-workout="1">
+            <div class="workout-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M6.5 6.5L17.5 17.5M6.5 17.5L17.5 6.5M12 2V22"/>
+              </svg>
+            </div>
+            <h3>Full Body A</h3>
+            <div class="desc">5 exercise • Beginner</div>
+            <div style="margin-bottom: 10px;">
+              <span class="badge badge-medium">Medium</span>
+            </div>
+            <div class="meta">
+              <span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                30 min
+              </span>
+              <span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                </svg>
+                220 cal
+              </span>
+            </div>
+          </div>
+
+          <div class="card workout-card" data-workout="2">
+            <div class="workout-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+                <line x1="6" y1="1" x2="6" y2="4"/>
+                <line x1="10" y1="1" x2="10" y2="4"/>
+                <line x1="14" y1="1" x2="14" y2="4"/>
+              </svg>
+            </div>
+            <h3>Posture & Back</h3>
+            <div class="desc">4 exercise • Focus form</div>
+            <div style="margin-bottom: 10px;">
+              <span class="badge badge-low">Low</span>
+            </div>
+            <div class="meta">
+              <span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                25 min
+              </span>
+              <span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                </svg>
+                150 cal
+              </span>
+            </div>
+          </div>
+
+          <div class="card workout-card" data-workout="3">
+            <div class="workout-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="12" cy="12" r="10"/>
+                <circle cx="12" cy="12" r="6"/>
+                <circle cx="12" cy="12" r="2"/>
+              </svg>
+            </div>
+            <h3>Core & Flexibility</h3>
+            <div class="desc">6 exercise • Intermediate</div>
+            <div style="margin-bottom: 10px;">
+              <span class="badge badge-high">High</span>
+            </div>
+            <div class="meta">
+              <span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                35 min
+              </span>
+              <span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                </svg>
+                280 cal
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-primary fade-in delay-2" id="start-workout-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+          Mulai Workout
+        </button>
+      </div>
+
+      <!-- SESSION SCREEN -->
+      <div id="session-screen" class="screen session-screen">
+        <div class="session-top">
+          <button class="btn-secondary" id="exit-session-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 16px; height: 16px; stroke-width: 2;">
+              <line x1="19" y1="12" x2="5" y2="12"/>
+              <polyline points="12 19 5 12 12 5"/>
+            </svg>
+            Keluar
+          </button>
+          <div class="label">Exercise 2/5</div>
+        </div>
+
+        <div class="progress-dots">
+          <div class="progress-dot completed"></div>
+          <div class="progress-dot current"></div>
+          <div class="progress-dot"></div>
+          <div class="progress-dot"></div>
+          <div class="progress-dot"></div>
+        </div>
+
+        <div class="session-exercise">
+          <h2>Push-up</h2>
+          <div class="session-info">Set 2 dari 3 • 60s rest</div>
+        </div>
+
+        <div class="timer-container">
+          <div class="timer-ring">
+            <svg width="220" height="220" viewBox="0 0 220 220">
+              <circle class="timer-bg" cx="110" cy="110" r="100"/>
+              <circle class="timer-progress" cx="110" cy="110" r="100"/>
+            </svg>
+            <div class="timer-display">0:45</div>
+          </div>
+        </div>
+        <div class="timer-label">Sisa waktu istirahat</div>
+
+        <div class="rep-counter">
+          <span class="rep-current">12</span>
+          <span class="rep-total">Target Reps</span>
+        </div>
+
+        <button class="btn-primary" id="complete-set-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          Selesai Set
+        </button>
+
+        <div class="session-actions">
+          <button class="btn-secondary" id="pause-timer-btn">Pause</button>
+          <button class="btn-secondary" id="skip-exercise-btn">Skip</button>
+        </div>
+      </div>
+
+      <!-- PROGRESS SCREEN -->
+      <div id="progress-screen" class="screen">
+        <div class="section fade-in">
+          <div class="section-title" style="margin-bottom: 14px;">Berat Badan</div>
+          <div class="chart-container">
+            <div class="chart-header">
+              <div>
+                <div class="chart-value">65.5 kg</div>
+                <div class="chart-change">↓ 1.2 kg</div>
+              </div>
+              <button class="btn-secondary" style="padding: 8px 14px; font-size: 13px;">+ Catat</button>
+            </div>
+            <svg class="chart-svg" viewBox="0 0 340 110" preserveAspectRatio="none">
+              <path d="M0,90 C40,85 80,70 120,65 C160,60 200,75 240,50 C280,30 320,20 340,15" 
+                    fill="none" stroke="#2F5EFF" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="340" cy="15" r="4" fill="#2F5EFF"/>
+            </svg>
+            <div class="chart-axis">
+              <span class="label">1 Jun</span>
+              <span class="label">15 Jun</span>
+              <span class="label">30 Jun</span>
+              <span class="label">15 Jul</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section fade-in delay-1">
+          <div class="section-title" style="margin-bottom: 14px;">Pengukuran Tubuh</div>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M2 12h20M12 2v20"/>
+                </svg>
+              </div>
+              <div class="stat-value">86</div>
+              <div class="stat-label">Pinggang (cm)</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M6.5 6.5L17.5 17.5M6.5 17.5L17.5 6.5"/>
+                </svg>
+              </div>
+              <div class="stat-value">32</div>
+              <div class="stat-label">Lengan (cm)</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M12 2v20M2 12h20"/>
+                </svg>
+              </div>
+              <div class="stat-value">54</div>
+              <div class="stat-label">Paha (cm)</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+              </div>
+              <div class="stat-value">96</div>
+              <div class="stat-label">Dada (cm)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATISTICS SCREEN -->
+      <div id="statistics-screen" class="screen">
+        <div class="stats-grid fade-in">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M6.5 6.5L17.5 17.5M6.5 17.5L17.5 6.5M12 2V22"/>
+              </svg>
+            </div>
+            <div class="stat-value">48</div>
+            <div class="stat-label">Total Workout</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+              </svg>
+            </div>
+            <div class="stat-value">7</div>
+            <div class="stat-label">Current Streak</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <div class="stat-value">24h</div>
+            <div class="stat-label">Total Time</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+              </svg>
+            </div>
+            <div class="stat-value">8.4k</div>
+            <div class="stat-label">Calories Burn</div>
+          </div>
+        </div>
+
+        <div class="section fade-in delay-1">
+          <div class="section-title" style="margin-bottom: 14px;">Personal Best</div>
+          <div class="card" style="margin-bottom: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div class="label" style="margin-bottom: 4px;">Push-up (1 set)</div>
+                <div class="mono" style="font-size: 20px; font-weight: 600;">25 reps</div>
+              </div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 32px; height: 32px; stroke-width: 2;">
+                <path d="M6.5 6.5L17.5 17.5M6.5 17.5L17.5 6.5"/>
+              </svg>
+            </div>
+          </div>
+          <div class="card" style="margin-bottom: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div class="label" style="margin-bottom: 4px;">Plank Hold</div>
+                <div class="mono" style="font-size: 20px; font-weight: 600;">1:45 min</div>
+              </div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 32px; height: 32px; stroke-width: 2;">
+                <circle cx="12" cy="12" r="10"/>
+                <circle cx="12" cy="12" r="6"/>
+                <circle cx="12" cy="12" r="2"/>
+              </svg>
+            </div>
+          </div>
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div class="label" style="margin-bottom: 4px;">Longest Streak</div>
+                <div class="mono" style="font-size: 20px; font-weight: 600;">14 hari</div>
+              </div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 32px; height: 32px; stroke-width: 2;">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HISTORY SCREEN -->
+      <div id="history-screen" class="screen">
+        <div class="filter-pills fade-in">
+          <button class="pill active">Semua</button>
+          <button class="pill">Minggu ini</button>
+          <button class="pill">Bulan ini</button>
+        </div>
+
+        <div class="timeline-label fade-in delay-1">Hari Ini</div>
+        <div class="history-item fade-in delay-1">
+          <div class="history-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M6.5 6.5L17.5 17.5M6.5 17.5L17.5 6.5M12 2V22"/>
+            </svg>
+          </div>
+          <div class="history-info">
+            <div class="history-title">Full Body A</div>
+            <div class="history-meta">5 exercise • 28 menit • 220 cal</div>
+          </div>
+          <div class="history-date">09:30</div>
+        </div>
+
+        <div class="timeline-label fade-in delay-2">Kemarin</div>
+        <div class="history-item fade-in delay-2">
+          <div class="history-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+              <line x1="6" y1="1" x2="6" y2="4"/>
+              <line x1="10" y1="1" x2="10" y2="4"/>
+              <line x1="14" y1="1" x2="14" y2="4"/>
+            </svg>
+          </div>
+          <div class="history-info">
+            <div class="history-title">Posture & Back</div>
+            <div class="history-meta">4 exercise • 22 menit • 150 cal</div>
+          </div>
+          <div class="history-date">18:15</div>
+        </div>
+
+        <div class="history-item fade-in delay-3">
+          <div class="history-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="12" r="10"/>
+              <circle cx="12" cy="12" r="6"/>
+              <circle cx="12" cy="12" r="2"/>
+            </svg>
+          </div>
+          <div class="history-info">
+            <div class="history-title">Core & Flexibility</div>
+            <div class="history-meta">6 exercise • 32 menit • 260 cal</div>
+          </div>
+          <div class="history-date">07:00</div>
+        </div>
+
+        <div class="timeline-label fade-in delay-4">21 Juli 2026</div>
+        <div class="history-item fade-in delay-4">
+          <div class="history-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M6.5 6.5L17.5 17.5M6.5 17.5L17.5 6.5M12 2V22"/>
+            </svg>
+          </div>
+          <div class="history-info">
+            <div class="history-title">Full Body B</div>
+            <div class="history-meta">5 exercise • 30 menit • 240 cal</div>
+          </div>
+          <div class="history-date">10:00</div>
+        </div>
+      </div>
+
+      <!-- SETTINGS SCREEN -->
+      <div id="settings-screen" class="screen">
+        <div class="section fade-in">
+          <div class="section-title" style="margin-bottom: 14px;">Timer & Audio</div>
+          <div class="settings-group">
+            <div class="settings-item">
+              <span class="settings-label">Rest Timer</span>
+              <span class="settings-value">60 detik</span>
+            </div>
+            <div class="settings-item">
+              <span class="settings-label">Suara Timer</span>
+              <div class="toggle on"></div>
+            </div>
+            <div class="settings-item">
+              <span class="settings-label">Getaran</span>
+              <div class="toggle on"></div>
+            </div>
+            <div class="settings-item">
+              <span class="settings-label">Countdown Voice</span>
+              <div class="toggle"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section fade-in delay-1">
+          <div class="section-title" style="margin-bottom: 14px;">Tampilan</div>
+          <div class="settings-group">
+            <div class="settings-item">
+              <span class="settings-label">Dark Mode</span>
+              <div class="toggle"></div>
+            </div>
+            <div class="settings-item">
+              <span class="settings-label">Animasi</span>
+              <div class="toggle on"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section fade-in delay-2">
+          <div class="section-title" style="margin-bottom: 14px;">Data</div>
+          <div class="settings-group">
+            <div class="settings-item" style="cursor: pointer;">
+              <span class="settings-label">Export Data</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 18px; height: 18px; stroke-width: 2; color: var(--muted);">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </div>
+            <div class="settings-item" style="cursor: pointer;">
+              <span class="settings-label">Import Data</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 18px; height: 18px; stroke-width: 2; color: var(--muted);">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </div>
+            <div class="settings-item" style="cursor: pointer;">
+              <span class="settings-label" style="color: var(--blue);">Hapus Semua Data</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 18px; height: 18px; stroke-width: 2; color: var(--muted);">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 32px; color: var(--muted); font-size: 12px;" class="fade-in delay-3">
+          <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 14px; margin-bottom: 4px;">Workout Personal</div>
+          <div>Version 2.0</div>
+        </div>
+      </div>
+    </main>
+
+    <nav id="main-nav">
+      <button class="nav-btn active" data-screen="home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        Home
+      </button>
+      <button class="nav-btn" data-screen="progress">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+        Progress
+      </button>
+      <button class="nav-btn" data-screen="statistics">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <line x1="18" y1="20" x2="18" y2="10"/>
+          <line x1="12" y1="20" x2="12" y2="4"/>
+          <line x1="6" y1="20" x2="6" y2="14"/>
+        </svg>
+        Stats
+      </button>
+      <button class="nav-btn" data-screen="history">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        History
+      </button>
+      <button class="nav-btn" data-screen="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        Settings
+      </button>
+    </nav>
+  </div>
+
+  <script src="js/storage.js"></script>
+  <script src="js/workout.js"></script>
+  <script src="js/session.js"></script>
+  <script src="js/timer.js"></script>
+  <script src="js/progress.js"></script>
+  <script src="js/statistics.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/exportimport.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

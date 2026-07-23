@@ -1,0 +1,142 @@
+  const renderSettingsPage = function(container) {
+    const settings = Settings.getSettings();
+    
+    container.innerHTML = `
+      <div class="card">
+        <h2>⚙️ Pengaturan</h2>
+        
+        <div class="settings-section">
+          <h3>Timer & Rest</h3>
+          <div class="setting-item">
+            <label>Default Rest Time (detik)</label>
+            <input type="number" id="defaultRestTime" value="${settings.defaultRestTime}" min="10" max="300">
+          </div>
+          <div class="setting-item">
+            <label>Timer Sound</label>
+            <label class="switch">
+              <input type="checkbox" id="timerSound" ${settings.timerSound ? 'checked' : ''}>
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="setting-item">
+            <label>Vibration</label>
+            <label class="switch">
+              <input type="checkbox" id="vibration" ${settings.vibration ? 'checked' : ''}>
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3>Units</h3>
+          <div class="setting-item">
+            <label>Weight Unit</label>
+            <select id="weightUnit">
+              <option value="kg" ${settings.weightUnit === 'kg' ? 'selected' : ''}>Kilogram (kg)</option>
+              <option value="lbs" ${settings.weightUnit === 'lbs' ? 'selected' : ''}>Pounds (lbs)</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label>Measurement Unit</label>
+            <select id="measurementUnit">
+              <option value="cm" ${settings.measurementUnit === 'cm' ? 'selected' : ''}>Centimeter (cm)</option>
+              <option value="in" ${settings.measurementUnit === 'in' ? 'selected' : ''}>Inch (in)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3>Data Management</h3>
+          <button class="btn btn-secondary" onclick="App.exportData()">Export Data</button>
+          <button class="btn btn-secondary" onclick="App.showImportModal()">Import Data</button>
+          <button class="btn btn-danger" onclick="App.resetSettings()">Reset Settings</button>
+          <button class="btn btn-danger" onclick="App.clearAllData()">Clear All Data</button>
+        </div>
+
+        <div class="settings-section">
+          <h3>About</h3>
+          <p class="about-text">Workout Personal v1.0</p>
+          <p class="about-text">A simple offline workout tracker</p>
+          <p class="about-text">Built with Vanilla JavaScript</p>
+        </div>
+
+        <button class="btn btn-primary" onclick="App.saveSettings()">Save Settings</button>
+      </div>
+    `;
+  };
+
+  const saveSettings = function() {
+    const newSettings = {
+      defaultRestTime: parseInt(document.getElementById('defaultRestTime').value),
+      timerSound: document.getElementById('timerSound').checked,
+      vibration: document.getElementById('vibration').checked,
+      weightUnit: document.getElementById('weightUnit').value,
+      measurementUnit: document.getElementById('measurementUnit').value
+    };
+    
+    Settings.saveSettings(newSettings);
+    alert('Settings saved!');
+  };
+
+  const resetSettings = function() {
+    if (confirm('Reset all settings to default?')) {
+      Settings.resetToDefault();
+      renderPage();
+    }
+  };
+
+  const clearAllData = function() {
+    if (Settings.clearAllData()) {
+      alert('All data cleared!');
+      location.reload();
+    }
+  };
+
+  const exportData = function() {
+    const data = Settings.exportData();
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'workout-backup-' + new Date().toISOString().split('T')[0] + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const showImportModal = function() {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+      <div class="modal-content">
+        <h3>Import Data</h3>
+        <input type="file" id="importFile" accept=".json">
+        <div class="modal-buttons">
+          <button class="btn btn-secondary" onclick="App.closeModal()">Cancel</button>
+          <button class="btn btn-primary" onclick="App.importData()">Import</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  };
+
+  const importData = function() {
+    const fileInput = document.getElementById('importFile');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+      alert('Please select a file');
+      return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      if (Settings.importData(e.target.result)) {
+        alert('Data imported successfully!');
+        closeModal();
+        location.reload();
+      } else {
+        alert('Import failed. Invalid file format.');
+      }
+    };
+    reader.readAsText(file);
+  };
