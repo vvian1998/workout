@@ -28,6 +28,32 @@ const App = (function() {
     return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor">' + inner + '</svg>';
   };
 
+  // ---------- WAKE LOCK ----------
+  // Keeps the screen from auto-locking mid-workout (mid-plank timer hitting
+  // a black screen is the single most annoying bug in a workout app). Not
+  // supported everywhere, and can fail silently (low battery mode, etc.) —
+  // both are fine, the app just falls back to normal screen-timeout behavior.
+  let wakeLock = null;
+
+  const requestWakeLock = function() {
+    if (!('wakeLock' in navigator)) return;
+    navigator.wakeLock.request('screen').then(function(lock) {
+      wakeLock = lock;
+      wakeLock.addEventListener('release', function() {
+        wakeLock = null;
+      });
+    }).catch(function() {
+      wakeLock = null; // e.g. battery saver, or page not visible — non-fatal
+    });
+  };
+
+  const releaseWakeLock = function() {
+    if (wakeLock) {
+      wakeLock.release().catch(function() {});
+      wakeLock = null;
+    }
+  };
+
   const init = function() {
     setupEventListeners();
     renderHome();
@@ -47,10 +73,35 @@ const App = (function() {
       exitBtn.addEventListener('click', () => {
         if (confirm('Keluar dari sesi workout? Progress akan tersimpan.')) {
           Timer.stop();
+          if (prepIntervalId) {
+            clearInterval(prepIntervalId);
+            prepIntervalId = null;
+          }
+          prepActive = false;
+          prepOnDone = null;
+          releaseWakeLock();
           showScreen('home');
         }
       });
     }
+
+    // Tap-anywhere-to-skip on the Preparation screen — no dedicated button
+    // (keeps the screen clean), but power users who already know the move
+    // shouldn't have to sit through a full 5-second countdown every set.
+    const prepScreen = document.getElementById('preparation-screen');
+    if (prepScreen) {
+      prepScreen.addEventListener('click', handlePrepTap);
+    }
+
+    // Re-acquire the wake lock if the tab/screen comes back into view
+    // mid-session — the OS silently releases it whenever the page is
+    // hidden (e.g. user switches app briefly), so it doesn't reapply on
+    // its own once they come back.
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && Session.getCurrent()) {
+        requestWakeLock();
+      }
+    });
 
     const completeBtn = document.getElementById('complete-set-btn');
     if (completeBtn) {
@@ -141,6 +192,7 @@ const App = (function() {
 
   const finishWorkoutFlow = function() {
     Timer.stop();
+    releaseWakeLock();
 
     const history = Storage.get('workoutHistory') || [];
     const last = history[history.length - 1];
@@ -172,8 +224,12 @@ const App = (function() {
     if (pauseBtn) pauseBtn.textContent = 'Pause';
 
     if (sessionPhase === 'rest') {
-      // Skip straight past whatever rest is left into the next exercise/set.
-      enterExercisePhase();
+      // Skip straight past whatever rest is left, but still show the
+      // "get ready" countdown before diving into the next exercise/set.
+      const nextExercise = Session.getCurrentExercise();
+      runPreparation(nextExercise, function() {
+        enterExercisePhase();
+      });
       return;
     }
 
@@ -187,7 +243,10 @@ const App = (function() {
       return;
     }
 
-    enterExercisePhase();
+    const nextExercise = Session.getCurrentExercise();
+    runPreparation(nextExercise, function() {
+      enterExercisePhase();
+    });
   };
 
   // ---------- HOME ----------
@@ -302,8 +361,137 @@ const App = (function() {
 
   const startWorkout = function(workoutId) {
     Session.start(workoutId);
+    requestWakeLock();
+    const exercise = Session.getCurrentExercise();
+    runPreparation(exercise, function() {
+      enterExercisePhase();
+    });
+  };
+
+  // ----- PREPARATION PHASE (5-4-3-2-1-GO before every exercise) -----
+  let prepIntervalId = null;
+  let prepActive = false;
+  let prepOnDone = null;
+  const PREP_SECONDS = 5;
+
+  const runPreparation = function(exercise, onDone) {
+    if (!exercise) { onDone(); return; }
+
+    // Clear any stray preparation timer (defensive — avoids duplicated
+    // intervals if this ever gets called twice in a row).
+    if (prepIntervalId) {
+      clearInterval(prepIntervalId);
+      prepIntervalId = null;
+    }
+    prepActive = true;
+    prepOnDone = onDone;
+
+    const nameEl = document.getElementById('prep-exercise-name');
+    const targetEl = document.getElementById('prep-exercise-target');
+    const iconEl = document.getElementById('prep-icon');
+    const countdownEl = document.getElementById('prep-countdown');
+
+    if (nameEl) nameEl.textContent = exercise.name;
+    if (iconEl) iconEl.innerHTML = svg(iconFor(exercise.name));
+
+    if (targetEl) {
+      const durationSeconds = parseExerciseDurationSeconds(exercise.reps);
+      targetEl.textContent = durationSeconds
+        ? exercise.reps
+        : exercise.sets + 'x' + exercise.reps + ' reps';
+    }
+
+    Timer.initAudio(); // user-gesture-adjacent call, keeps audio unlocked
+
+    let count = PREP_SECONDS;
+    const renderCount = function(value, isGo) {
+      if (!countdownEl) return;
+      countdownEl.classList.remove('tick', 'go');
+      countdownEl.textContent = isGo ? 'GO!' : String(value);
+      // reflow so the animation reliably restarts each tick
+      void countdownEl.offsetWidth;
+      countdownEl.classList.add(isGo ? 'go' : 'tick');
+    };
+
+    showScreen('preparation');
+    renderCount(count, false);
+    playPrepTick(false);
+    announceExercise(exercise);
+
+    prepIntervalId = setInterval(function() {
+      count--;
+      if (count > 0) {
+        renderCount(count, false);
+        playPrepTick(false);
+      } else {
+        renderCount(0, true);
+        playPrepTick(true);
+        clearInterval(prepIntervalId);
+        prepIntervalId = null;
+        setTimeout(finishPreparation, 450); // let the "GO!" animation land
+      }
+    }, 1000);
+  };
+
+  // Ends the Preparation phase — reached either by the countdown running
+  // out naturally, or by the user tapping the screen to skip ahead.
+  // Guarded by prepActive so the natural-completion setTimeout can't fire
+  // a second time after a tap already resolved it.
+  const finishPreparation = function() {
+    if (!prepActive) return;
+    prepActive = false;
+    if (prepIntervalId) {
+      clearInterval(prepIntervalId);
+      prepIntervalId = null;
+    }
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    const done = prepOnDone;
+    prepOnDone = null;
     showScreen('session');
-    enterExercisePhase();
+    if (done) done();
+  };
+
+  // Tap-anywhere-on-screen skip — jumps straight into the exercise instead
+  // of waiting out the rest of the 5-4-3-2-1 countdown.
+  const handlePrepTap = function() {
+    if (!prepActive) return;
+    finishPreparation();
+  };
+
+  // Speaks the exercise name once, right as Preparation begins, so the
+  // user doesn't have to be looking at the screen to know what's next.
+  const announceExercise = function(exercise) {
+    if (typeof Settings !== 'undefined') {
+      try {
+        if (Settings.getSetting('timerSound') === false) return;
+      } catch (e) { /* fall through and try to speak anyway */ }
+    }
+    if (!('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') return;
+    try {
+      const utterance = new SpeechSynthesisUtterance(exercise.name + ', bersiap');
+      utterance.lang = 'id-ID';
+      utterance.rate = 1.05;
+      utterance.pitch = 1.1;
+      utterance.volume = 1;
+      window.speechSynthesis.cancel(); // avoid overlapping utterances
+      window.speechSynthesis.speak(utterance);
+    } catch (e) {
+      console.warn('Speech synthesis failed', e);
+    }
+  };
+
+  // Short, cheap tick sounds for the countdown — reuses Timer's audio
+  // context via the same soundEnabled() preference the workout timer uses.
+  // GO! gets a distinctly longer, punchier pattern than the plain ticks so
+  // it reads as "different" even without looking at the screen.
+  const playPrepTick = function(isGo) {
+    if (typeof Settings !== 'undefined') {
+      try {
+        if (Settings.getSetting('vibration') === false) return;
+      } catch (e) { /* fall through and vibrate */ }
+    }
+    if (!('vibrate' in navigator)) return;
+    navigator.vibrate(isGo ? [70, 40, 70, 40, 160] : 35);
   };
 
   // ----- EXERCISE PHASE -----
@@ -357,6 +545,10 @@ const App = (function() {
     const timerLabel = document.querySelector('.timer-label');
     const ring = document.querySelector('.timer-progress');
 
+    // Remove next exercise preview if it exists (we're back to exercise phase)
+    const preview = document.querySelector('.next-exercise-preview');
+    if (preview) preview.remove();
+
     const durationSeconds = parseExerciseDurationSeconds(exercise.reps);
 
     if (durationSeconds) {
@@ -364,13 +556,26 @@ const App = (function() {
       // with sound, and auto-advances to rest the moment it hits zero.
       if (completeLabel) completeLabel.textContent = 'Selesai Lebih Awal';
       if (timerLabel) timerLabel.textContent = 'Latihan berjalan';
+      
+      // Initialize audio context for sound effects
+      Timer.initAudio();
+      
       Timer.start(durationSeconds, function(remaining, total) {
-        if (timerDisplay) timerDisplay.textContent = formatTime(remaining);
+        if (timerDisplay) {
+          timerDisplay.textContent = formatTime(remaining);
+          // Add pulse effect for last 3 seconds
+          if (remaining <= 3 && remaining > 0) {
+            timerDisplay.style.transform = 'scale(1.05)';
+          } else {
+            timerDisplay.style.transform = 'scale(1)';
+          }
+        }
         if (ring && total > 0) {
           const progress = (total - remaining) / total; // 0 -> 1
           ring.style.strokeDashoffset = RING_CIRCUMFERENCE * progress;
         }
       }, function() {
+        if (timerDisplay) timerDisplay.style.transform = 'scale(1)';
         advanceAfterExercise(exercise);
       });
     } else {
@@ -439,6 +644,9 @@ const App = (function() {
       addTimeBtn.disabled = false;
     }
 
+    // Show next exercise preview
+    showNextExercisePreview();
+
     const timerDisplay = document.querySelector('.timer-display');
     const ring = document.querySelector('.timer-progress');
 
@@ -449,9 +657,54 @@ const App = (function() {
         ring.style.strokeDashoffset = RING_CIRCUMFERENCE * progress;
       }
     }, function() {
-      // Rest is over — auto-advance into the next exercise/set.
-      enterExercisePhase();
+      // Rest is over — show the "get ready" countdown, then auto-advance
+      // into the next exercise/set.
+      const nextExercise = Session.getCurrentExercise();
+      runPreparation(nextExercise, function() {
+        enterExercisePhase();
+      });
     });
+  };
+
+  // Show preview of what's coming up right after this rest — this must
+  // reflect Session's *current* pointer (Session.completeSet already
+  // advanced set/exercise before rest starts), NOT "index + 1", which
+  // was wrong whenever rest falls between two sets of the same exercise.
+  const showNextExercisePreview = function() {
+    const session = Session.getCurrent();
+    const nextExercise = Session.getCurrentExercise();
+
+    const repCounter = document.querySelector('.rep-counter');
+    if (!repCounter) return;
+
+    // Remove existing preview if any
+    const existingPreview = document.querySelector('.next-exercise-preview');
+    if (existingPreview) existingPreview.remove();
+
+    if (session && nextExercise) {
+      const preview = document.createElement('div');
+      preview.className = 'next-exercise-preview';
+
+      const durationSeconds = parseExerciseDurationSeconds(nextExercise.reps);
+      const targetDisplay = durationSeconds
+        ? nextExercise.reps
+        : nextExercise.reps + ' reps';
+
+      preview.innerHTML = `
+        <div class="label">Latihan Berikutnya</div>
+        <div class="next-exercise-row">
+          <div class="next-exercise-icon">${svg(iconFor(nextExercise.name))}</div>
+          <div>
+            <div class="exercise-name">${nextExercise.name}</div>
+            <div class="exercise-details">
+              Target ${targetDisplay} • Set ${session.currentSet}/${nextExercise.sets}
+            </div>
+          </div>
+        </div>
+      `;
+
+      repCounter.parentNode.insertBefore(preview, repCounter);
+    }
   };
 
   // ---------- HISTORY ----------
