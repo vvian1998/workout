@@ -642,6 +642,124 @@ header .subtitle {
   margin: 16px 0 32px;
 }
 
+/* ========================================
+   PREPARATION SCREEN
+   ======================================== */
+
+.preparation-screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 0px);
+  padding: 20px;
+  background: var(--ink);
+  color: var(--surface);
+  cursor: pointer;
+}
+
+.preparation-screen.active {
+  display: flex;
+}
+
+.prep-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: prepFadeIn 0.35s ease-out;
+}
+
+@keyframes prepFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.prep-icon {
+  width: 56px;
+  height: 56px;
+  color: var(--yellow);
+  margin-bottom: 16px;
+}
+
+.prep-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.prep-exercise-name {
+  font-size: 24px;
+  color: var(--surface);
+  margin-bottom: 6px;
+}
+
+.prep-target {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 36px;
+}
+
+.prep-countdown-wrap {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 199, 44, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+
+.prep-countdown {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 84px;
+  color: var(--yellow);
+  line-height: 1;
+}
+
+.prep-countdown.tick {
+  animation: prepTick 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.prep-countdown.go {
+  color: var(--surface);
+  font-size: 56px;
+  animation: prepGo 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes prepTick {
+  0% { transform: scale(1.35); opacity: 0; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes prepGo {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.prep-subtitle {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.prep-skip-hint {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  opacity: 0.55;
+  margin-top: 40px;
+}
+
 .timer-ring {
   width: 220px;
   height: 220px;
@@ -671,6 +789,8 @@ header .subtitle {
   stroke-width: 6;
   stroke-dasharray: 628;
   stroke-dashoffset: 157;
+  transition: stroke-dashoffset 0.2s linear;
+  filter: drop-shadow(0 0 2px rgba(255, 199, 44, 0.4));
 }
 
 .timer-display {
@@ -678,6 +798,7 @@ header .subtitle {
   font-size: 48px;
   font-weight: 600;
   color: var(--ink);
+  transition: transform 0.15s ease-out, color 0.2s ease-out;
 }
 
 .timer-label {
@@ -711,6 +832,73 @@ header .subtitle {
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--muted-dark);
+}
+
+/* ========================================
+   NEXT EXERCISE PREVIEW (during rest)
+   ======================================== */
+
+.next-exercise-preview {
+  background: rgba(255, 199, 44, 0.08);
+  border: 1px solid rgba(255, 199, 44, 0.2);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 8px;
+  margin-bottom: 24px;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.next-exercise-preview .label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.next-exercise-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.next-exercise-icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  color: var(--yellow);
+  background: rgba(255, 199, 44, 0.15);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px;
+}
+
+.next-exercise-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.next-exercise-preview .exercise-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+
+.next-exercise-preview .exercise-details {
+  font-size: 13px;
+  color: var(--muted-dark);
+  line-height: 1.4;
 }
 
 .progress-dots {
@@ -846,6 +1034,10 @@ header .subtitle {
   pointer-events: none;
 }
 
+.hidden {
+  display: none !important;
+}
+
 /* ========================================
    UTILITIES
    ======================================== */
@@ -858,7 +1050,6 @@ header .subtitle {
   padding: 20px;
   padding-bottom: 100px;
 }
-
   </style>
 </head>
 <body>
