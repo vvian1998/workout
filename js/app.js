@@ -4,17 +4,29 @@ const App = (function() {
   let currentScreen = 'home';
 
   const ICONS = {
-    dumbbell: '<path d="M6.5 6.5L17.5 17.5M6.5 17.5L17.5 6.5M12 2V22"/>',
+    // Clean barbell silhouette — replaces the old crossed-line mark that
+    // read as an asterisk/star rather than gym equipment.
+    dumbbell: '<line x1="2" y1="12" x2="22" y2="12"/><line x1="6" y1="8" x2="6" y2="16"/><line x1="18" y1="8" x2="18" y2="16"/><line x1="3" y1="9.5" x2="3" y2="14.5"/><line x1="21" y1="9.5" x2="21" y2="14.5"/>',
     posture: '<path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>',
-    core: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+    // Simple pair of legs — squat/lunge/step-type lower-body moves.
+    legs: '<path d="M9 3h6v5.5l1.6 12.5h-3.1l-1.5-10-1.5 10H7.4L9 8.5z"/><line x1="9" y1="6" x2="15" y2="6"/>',
+    // Pulse/heartbeat line — reads as "exertion" for held/core exercises
+    // (Plank, Hollow Body Hold, Russian Twist, etc.) better than plain circles.
+    activity: '<polyline points="3 12 8 12 10 6 14 18 16 12 21 12"/>',
     clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
     bolt: '<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>'
   };
 
   const iconFor = function(name) {
     const key = name.toLowerCase();
-    if (key.includes('posture') || key.includes('back')) return ICONS.posture;
-    if (key.includes('core') || key.includes('flex') || key.includes('mobil')) return ICONS.core;
+    if (key.includes('posture') || key.includes('back') || key.includes('snow angel') ||
+        key.includes('wall angel') || key.includes('bird dog') || key.includes('superman') ||
+        key.includes('thoracic')) return ICONS.posture;
+    if (key.includes('squat') || key.includes('lunge') || key.includes('glute') ||
+        key.includes('step-up') || key.includes('step up')) return ICONS.legs;
+    if (key.includes('core') || key.includes('flex') || key.includes('mobil') ||
+        key.includes('plank') || key.includes('hollow') || key.includes('twist') ||
+        key.includes('dead bug') || key.includes('cat-cow') || key.includes('cat cow')) return ICONS.activity;
     return ICONS.dumbbell;
   };
 
@@ -543,6 +555,8 @@ const App = (function() {
 
     const timerDisplay = document.querySelector('.timer-display');
     const timerLabel = document.querySelector('.timer-label');
+    const timerContainer = document.querySelector('.timer-container');
+    const repCounterEl = document.querySelector('.rep-counter');
     const ring = document.querySelector('.timer-progress');
 
     // Remove next exercise preview if it exists (we're back to exercise phase)
@@ -554,6 +568,9 @@ const App = (function() {
     if (durationSeconds) {
       // Timed exercise (e.g. Plank, "30-45 detik"): runs its own countdown
       // with sound, and auto-advances to rest the moment it hits zero.
+      if (timerContainer) timerContainer.style.display = '';
+      if (repCounterEl) repCounterEl.classList.remove('solo');
+
       if (completeLabel) completeLabel.textContent = 'Selesai Lebih Awal';
       if (timerLabel) timerLabel.textContent = 'Latihan berjalan';
       
@@ -579,11 +596,16 @@ const App = (function() {
         advanceAfterExercise(exercise);
       });
     } else {
-      // Rep-count exercise: nothing to count down, so the timer stays put
-      // and the set is finished manually.
+      // Rep-count exercise: nothing to count down, so there's no live timer
+      // to show — the ring/countdown is hidden entirely (rather than left
+      // sitting there showing an idle "--:--") and the target-reps number
+      // grows to fill that space, since it's the only number that matters
+      // here. The set is finished manually via the button.
       Timer.stop();
+      if (timerContainer) timerContainer.style.display = 'none';
+      if (repCounterEl) repCounterEl.classList.add('solo');
+
       if (completeLabel) completeLabel.textContent = 'Selesai Set';
-      if (timerDisplay) timerDisplay.textContent = '--:--';
       if (timerLabel) timerLabel.textContent = 'Selesaikan set ini, lalu tekan tombol';
       if (ring) ring.style.strokeDashoffset = RING_CIRCUMFERENCE;
     }
@@ -636,6 +658,14 @@ const App = (function() {
     if (skipBtn) skipBtn.textContent = 'Lewati Istirahat';
     if (completeBtn) completeBtn.style.display = 'none'; // nothing to complete during rest
     if (timerLabel) timerLabel.textContent = 'Sisa waktu istirahat';
+
+    // Rest always has a live countdown — make sure the ring is visible and
+    // the rep-counter is back to its normal (non-"solo") size, in case the
+    // exercise just finished was a rep-based one that had hidden them.
+    const timerContainer = document.querySelector('.timer-container');
+    const repCounterEl = document.querySelector('.rep-counter');
+    if (timerContainer) timerContainer.style.display = '';
+    if (repCounterEl) repCounterEl.classList.remove('solo');
 
     // Fresh rest period -> fresh allowance of "+15s" taps.
     addTimeTapsUsed = 0;
